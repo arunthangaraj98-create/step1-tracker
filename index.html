@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Step 1 Tracker</title>
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAtklEQVR4nO3XOQ6AIBAFUHoKr+xlPIdH044QnZVZoMCExkT+AwkMpdajzGz6D+7rpFoI4BPyME2F0YRzwSBkGGAIVkGiw1lERjiJwADe4Q1BAvpw6uk7xd5LEejURwJ6BDr1HICDSWdBBIA6cQVACy8Y0BDDAMMa0AOokW5AGED6rzfABeC1EyogMVuxB0B8GBkA8GGUUAv8Rr9eQbJESTa9KF2iLHeC2C4mCCL/asZgci6nke0F/nCORrRs0/kAAAAASUVORK5CYII="><link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAtklEQVR4nO3XOQ6AIBAFUHoKr+xlPIdH044QnZVZoMCExkT+AwkMpdajzGz6D+7rpFoI4BPyME2F0YRzwSBkGGAIVkGiw1lERjiJwADe4Q1BAvpw6uk7xd5LEejURwJ6BDr1HICDSWdBBIA6cQVACy8Y0BDDAMMa0AOokW5AGED6rzfABeC1EyogMVuxB0B8GBkA8GGUUAv8Rr9eQbJESTa9KF2iLHeC2C4mCCL/asZgci6nke0F/nCORrRs0/kAAAAASUVORK5CYII=">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #F5F7FA; --bg2: #FFFFFF; --bg3: #EEF1F6; --bdr: #E2E8F0;
+    --pri: #6B8FD4; --pri-d: rgba(107,143,212,0.12); --pri-t: #4F74BC;
+    --grn: #6BBF9E; --grn-d: rgba(107,191,158,0.15);
+    --amb: #E8A87C; --amb-d: rgba(232,168,124,0.15);
+    --lav: #9B8FD4; --lav-d: rgba(155,143,212,0.15);
+    --sge: #7DB5A0; --red: #E07B7B;
+    --txt: #1E293B; --txt2: #475569; --txt3: #94A3B8;
+    --shadow: 0 2px 16px rgba(0,0,0,0.06); --shadow-lg: 0 8px 32px rgba(0,0,0,0.1);
+    --r: 16px; --r-sm: 10px; --r-lg: 20px;
+    --trans: all 0.22s cubic-bezier(0.4,0,0.2,1);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151C2C; --bg2: #1E2A3E; --bg3: #1A2235; --bdr: #2A3A54;
+      --pri: #7FA3E8; --pri-d: rgba(127,163,232,0.14); --pri-t: #9CB8F0;
+      --grn: #7DCFB0; --grn-d: rgba(125,207,176,0.14);
+      --amb: #F0B48A; --amb-d: rgba(240,180,138,0.14);
+      --lav: #AFA3E8; --lav-d: rgba(175,163,232,0.14);
+      --sge: #8EC5B2; --red: #F09090;
+      --txt: #E8F0FE; --txt2: #94A3B8; --txt3: #4A6080;
+      --shadow: 0 2px 16px rgba(0,0,0,0.25); --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+    }
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { background:var(--bg); color:var(--txt); font-family:'Inter',sans-serif; overflow-y:auto; transition:background 0.3s ease; }
+  input[type="date"]::-webkit-calendar-picker-indicator { opacity:0.5; }
+  ::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-track { background:transparent; } ::-webkit-scrollbar-thumb { background:var(--bdr); border-radius:3px; }
+  @keyframes fi { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.06)} 100%{transform:scale(1)} }
+  @keyframes slideIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+  .an { animation:fi 0.28s ease forwards; }
+  .ck { width:22px;height:22px;border-radius:7px;border:2px solid var(--bdr);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--trans);flex-shrink:0; }
+  .ck.d { background:var(--pri);border-color:var(--pri); }
+  .ck.sk { border-color:var(--lav); }
+  .ck.sk.d { background:var(--lav);border-color:var(--lav); }
+  .vr { display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--r-sm);cursor:pointer;transition:var(--trans); }
+  .vr:hover { background:var(--bg3); }
+  .pill { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:0.03em; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<!-- Firebase (free tier) — used for cross-device cloud sync -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+  #authGate{position:fixed;inset:0;background:#F5F7FA;display:flex;align-items:center;justify-content:center;z-index:9999;font-family:'Inter',sans-serif;}
+  @media (prefers-color-scheme: dark){ #authGate{background:#151C2C;} }
+  #authGate .card{width:340px;max-width:90vw;background:#fff;border-radius:16px;padding:28px 26px;box-shadow:0 8px 32px rgba(0,0,0,0.12);}
+  @media (prefers-color-scheme: dark){ #authGate .card{background:#1E2A3E;} }
+  #authGate h2{margin:0 0 6px;font-size:19px;color:#1E293B;}
+  @media (prefers-color-scheme: dark){ #authGate h2{color:#E8F0FE;} }
+  #authGate p.sub{margin:0 0 18px;font-size:13px;color:#94A3B8;}
+  #authGate input{width:100%;box-sizing:border-box;padding:11px 13px;margin-bottom:10px;border-radius:10px;border:1px solid #E2E8F0;background:#F5F7FA;font-size:14px;font-family:'Inter',sans-serif;outline:none;color:#1E293B;}
+  @media (prefers-color-scheme: dark){ #authGate input{background:#1A2235;border-color:#2A3A54;color:#E8F0FE;} }
+  #authGate button{width:100%;padding:12px 0;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:6px;font-family:'Inter',sans-serif;}
+  #authGate .primary{background:#6B8FD4;color:#fff;}
+  #authGate .secondary{background:transparent;color:#6B8FD4;}
+  #authGate .ghost{background:transparent;color:#94A3B8;font-weight:500;font-size:12px;text-decoration:underline;margin-top:14px;cursor:pointer;border:none;width:auto;}
+  #authGate .err{color:#E07B7B;font-size:12px;margin:4px 0 0;min-height:14px;}
+  #syncBadge{position:fixed;top:12px;right:14px;z-index:998;font-family:'Inter',sans-serif;font-size:11px;color:#94A3B8;background:rgba(255,255,255,0.85);border:1px solid #E2E8F0;border-radius:20px;padding:5px 12px;cursor:pointer;backdrop-filter:blur(4px);}
+  @media (prefers-color-scheme: dark){ #syncBadge{background:rgba(30,42,62,0.85);border-color:#2A3A54;color:#94A3B8;} }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ CLOUD SYNC (Firebase) ═══════════════ -->
+<div id="authGate">
+  <div class="card">
+    <h2 id="gateTitle">Loading…</h2>
+    <p class="sub" id="gateSub">Checking sync status</p>
+    <div id="gateForm" style="display:none">
+      <input id="gateEmail" type="email" placeholder="Email" autocomplete="email"/>
+      <input id="gatePw" type="password" placeholder="Password (6+ chars)" autocomplete="current-password"/>
+      <button class="primary" id="gateSignIn">Sign In</button>
+      <button class="secondary" id="gateSignUp">Create Account</button>
+      <p class="err" id="gateErr"></p>
+      <button class="ghost" id="gateSkip">Continue without sync (this device only)</button>
+    </div>
+  </div>
+</div>
+<div id="syncBadge" style="display:none"></div>
+
+<script>
+// ── 1. Firebase project config ──────────────────────────────────────────
+// Replace these with the values from your OWN Firebase project:
+// console.firebase.google.com → your project → ⚙️ Project settings → General
+// → scroll to "Your apps" → Web app → SDK setup and configuration → Config
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const FB_CONFIGURED = firebaseConfig.apiKey !== "YOUR_API_KEY";
+let fbAuth = null, fbDb = null, fbUser = null, syncTimer = null;
+
+const LS_PREFIX = "s1t"; // every key this app saves starts with s1t
+
+function collectLocalData(){
+  const out = {};
+  for (let i=0;i<localStorage.length;i++){
+    const k = localStorage.key(i);
+    if (k && k.indexOf(LS_PREFIX)===0) out[k] = localStorage.getItem(k);
+  }
+  return out;
+}
+
+function scheduleCloudPush(){
+  if (!fbUser || !fbDb) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(()=>{
+    const data = collectLocalData();
+    data._updatedAt = Date.now();
+    fbDb.collection("users").doc(fbUser.uid).set(data, {merge:true})
+      .then(()=>setBadge("Synced ✓"))
+      .catch(err=>{console.error("Cloud sync failed:",err); setBadge("Sync error");});
+  }, 1200);
+}
+
+// Patch localStorage so every existing save call in the app also triggers a cloud push
+const _origSetItem = localStorage.setItem.bind(localStorage);
+const _origRemoveItem = localStorage.removeItem.bind(localStorage);
+localStorage.setItem = function(key, value){
+  _origSetItem(key, value);
+  if (key.indexOf(LS_PREFIX)===0) { setBadge("Syncing…"); scheduleCloudPush(); }
+};
+localStorage.removeItem = function(key){
+  _origRemoveItem(key);
+  if (key.indexOf(LS_PREFIX)===0) scheduleCloudPush();
+};
+
+function setBadge(text){
+  const b = document.getElementById("syncBadge");
+  if (!fbUser){ b.style.display="none"; return; }
+  b.style.display="block";
+  b.textContent = "☁ " + (fbUser.email||"synced") + " · " + text;
+}
+
+function showGateForm(err){
+  document.getElementById("gateTitle").textContent = "Sync your tracker";
+  document.getElementById("gateSub").textContent = "Sign in with the same account on every device to keep progress in sync.";
+  document.getElementById("gateForm").style.display = "block";
+  document.getElementById("gateErr").textContent = err || "";
+}
+function hideGate(){ document.getElementById("authGate").style.display = "none"; }
+
+function mountApp(){
+  if (window.__mountApp) window.__mountApp();
+  else window.__pendingMount = true; // babel script hasn't finished parsing yet
+}
+
+function pullCloudThenMount(){
+  fbDb.collection("users").doc(fbUser.uid).get().then(snap=>{
+    if (snap.exists){
+      const data = snap.data();
+      Object.keys(data).forEach(k=>{
+        if (k.indexOf(LS_PREFIX)===0) _origSetItem(k, data[k]);
+      });
+    }
+    setBadge("Synced ✓");
+    hideGate();
+    mountApp();
+  }).catch(err=>{
+    console.error("Cloud pull failed:", err);
+    setBadge("Offline (using local copy)");
+    hideGate();
+    mountApp();
+  });
+}
+
+if (!FB_CONFIGURED) {
+  // No Firebase project set up yet — just run locally, no sync.
+  document.getElementById("authGate").style.display = "none";
+  mountApp();
+} else {
+  firebase.initializeApp(firebaseConfig);
+  fbAuth = firebase.auth();
+  fbDb = firebase.firestore();
+
+  fbAuth.onAuthStateChanged(user=>{
+    if (user){
+      fbUser = user;
+      pullCloudThenMount();
+    } else {
+      showGateForm();
+    }
+  });
+
+  document.getElementById("gateSignIn").onclick = ()=>{
+    const email = document.getElementById("gateEmail").value.trim();
+    const pw = document.getElementById("gatePw").value;
+    fbAuth.signInWithEmailAndPassword(email, pw).catch(e=>showGateForm(e.message));
+  };
+  document.getElementById("gateSignUp").onclick = ()=>{
+    const email = document.getElementById("gateEmail").value.trim();
+    const pw = document.getElementById("gatePw").value;
+    fbAuth.createUserWithEmailAndPassword(email, pw).catch(e=>showGateForm(e.message));
+  };
+  document.getElementById("gateSkip").onclick = ()=>{
+    hideGate();
+    mountApp();
+  };
+}
+
+document.getElementById("syncBadge").onclick = ()=>{
+  if (fbUser && confirm("Sign out of sync on this device?")) {
+    fbAuth.signOut().then(()=>location.reload());
+  }
+};
+</script>
+
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useMemo } = React;
+
+// ═══════════════════════════════════════════════════════
+// COMPLETE STUDY DATA: B&B (491) + SKETCHY (≈240) + UWORLD (3659 Qs)
+// Organized by First Aid section
+// ═══════════════════════════════════════════════════════
+
+const DATA = {
+  "Biochemistry": { icon:"🧬", sec:"I", bnb: {
+    "Biochemistry": { "Molecular Biochem":[["DNA Structure",13],["Purine Metabolism",19],["Pyrimidine Metabolism",22]], "Metabolism":[["Glucose",8],["Glycolysis",31],["Gluconeogenesis",17],["Glycogen",21],["HMP Shunt",14],["Fructose and Galactose",12],["Pyruvate Dehydrogenase",18],["TCA Cycle",14],["Electron Transport Chain",21],["Fatty Acids",27],["Ketone Bodies",8],["Ethanol Metabolism",19],["Exercise and Starvation",22],["Inborn Errors of Metabolism",21]], "Amino Acids":[["Amino Acids",18],["Phenylalanine and Tyrosine",25],["Other Amino Acids",19],["Ammonia",18]], "Vitamins":[["B Vitamins",23],["B12 and Folate",20],["Other Vitamins",33]], "Lipids":[["Lipid Metabolism",20],["Hyperlipidemia",10],["Lipid Drugs",23]], "Other":[["Lysosomal Storage Diseases",31]] },
+    "Cell Biology": { "Molecular Biology":[["DNA Replication",17],["DNA Mutations",15],["DNA Repair",17],["Transcription",23],["Translation",20]], "Lab Techniques":[["PCR",5],["Blotting",8],["Flow Cytometry",6],["ELISA",9],["Microarrays and FISH",5]], "Cellular Biology":[["Cell Cycle",14],["Cell Structure",21],["Cytoskeleton",15],["Connective Tissue",25]] },
+    "Genetics": { "Genetic Concepts":[["Genetic Principles",24],["Gene Mapping",12],["Meiosis",16],["Hardy-Weinberg Law",12],["Pedigrees",18],["Imprinting",6]], "Genetic Disorders":[["Down Syndrome",14],["Trisomies",7],["Muscular Dystrophy",9],["Trinucleotide Repeat Disorders",10],["Deletion Syndromes",5],["Turner and Klinefelter",13]] }
+  }, sketchy: {} },
+
+  "Immunology": { icon:"🛡️", sec:"I", bnb: {
+    "Immunology": { "Basic Immuno":[["Innate Immunity",36],["T-cells",30],["B-cells",31],["Complement System",21],["Lymph Nodes and Spleen",16]], "Clinical Immuno":[["Hypersensitivity",21],["Transplants",16],["Immune Deficiency Syndromes",36]], "Pharmacology":[["Glucocorticoids and NSAIDs",15],["Immunosuppressive Drugs",20]], "Autoimmune":[["SLE",15],["Rheumatoid Arthritis",17],["Scleroderma",10],["Sjogren's Syndrome",10],["Vasculitis",25],["Seroneg Spondyloarthritis",15]], "Inflammatory":[["Gout",14],["Gout Drugs",9],["CPPD",7]] }
+  }, sketchy: {
+    "Sketchy Pharm: Anti-Inflammatory": { "Anti-Inflammatory":[["Gout drugs"],["NSAIDs"],["Immunosuppressants"],["TNF Inhibitors"]] }
+  }},
+
+  "Microbiology": { icon:"🦠", sec:"I", bnb: {
+    "Infectious Disease": { "Basics of Micro":[["Bacteria",22],["Shapes and Stains",12],["Bacterial Culture",15],["Special Growth Requirements",10],["Virulence",29],["Growth and Genetics",16],["Bacterial Identification",17]], "Bacteria":[["Staphylococci",18],["Streptococci",21],["Other Gram Positives",25],["Gram Negative Rods",30],["Other Gram Negatives",27],["Spirochetes",15],["Zoonotic Infections",16],["Mycobacteria",11]], "Antibiotics":[["Penicillins",23],["Beta Lactams",17],["Sulfonamides",14],["Protein Synthesis Inhibitors",21],["Other Antibiotics",16]], "Fungi":[["Fungal Pneumonias",16],["Fungal Skin Infections",10],["Opportunistic Fungal Infections",24],["Antifungal Drugs",14]], "Parasites/Helminths":[["Malaria",14],["Protozoa",29],["Helminths",29]], "Viruses":[["Virus Structures",18],["DNA Viruses",18],["Herpes Viruses",24],["RNA Viruses",43],["Viral Hepatitis",26],["HIV",19],["HIV CNS Infections",5],["HIV Drugs",16],["Antiviral Drugs",15]] }
+  }, sketchy: {
+    "Sketchy Micro: Bacteria": { "Gram + Cocci":[["Enterococcus Faecium & Faecalis"],["Staph aureus"],["Staph Epidermidis & Saprophyticus"],["Strep Agalactiae (Group B)"],["Strep Pneumoniae & Viridans"],["Strep Pyogenes (Group A)"],["Strep Gallolyticus (Group D)"]], "Gram + Bacilli":[["Bacillus anthracis & cereus"],["C. Difficile"],["C. botulinum"],["C. Perfringens"],["C. tetani"],["Corynebacterium Diphtheriae"],["Listeria Monocytogenes"]], "Branching Filamentous":[["Actinomyces israelii"],["Nocardia asteroides"]], "Gram - Cocci":[["Neisseria Gonorrhoeae"],["Neisseria Meningitidis"],["Neisseria Overview"],["Moraxella Catarrhalis"]], "Gram - Enteric":[["Campylobacter Jejuni"],["E. coli (ETEC, EHEC)"],["H. pylori"],["Klebsiella/Enterobacter/Serratia"],["Proteus mirabilis"],["Salmonella Part 1: Intro & NTS"],["Salmonella Part 2: Typhoidal"],["Shigella spp."],["Vibrio spp."],["Yersinia Enterocolitica & Pestis"]], "Gram - Respiratory":[["Bordetella pertussis"],["Haemophilus Influenzae"],["Legionella pneumophila"],["Pseudomonas aeruginosa"],["Burkholderia"]], "Gram - Zoonotics":[["Bartonella henselae"],["Brucella spp."],["Francisella tularensis"],["Pasteurella multocida"],["Anaplasma/Ehrlichia"]], "Mycobacteria":[["M. leprae"],["M. tuberculosis"],["M. Avium/Scrofulaceum/Marinum"]], "Spirochetes":[["Borrelia burgdorferi"],["Leptospira interrogans"],["Treponema pallidum"],["Borrelia Recurrentis"]], "Gram-Indeterminate":[["Chlamydia trachomatis"],["Chlamydophila pneumoniae & psittaci"],["Coxiella burnetti"],["Gardnerella vaginalis"],["Mycoplasma pneumoniae"],["Rickettsia overview"],["Rickettsia prowazekii"],["Rickettsia rickettsii"]] },
+    "Sketchy Micro: Fungi": { "Systemic Mycoses":[["Blastomyces dermatitidis"],["Coccidioides immitis"],["Histoplasma capsulatum"],["Paracoccidioides brasiliensis"]], "Cutaneous Mycoses":[["Dermatophytes"],["Malassezia furfur"],["Sporothrix schenckii"]], "Opportunistic Fungi":[["Aspergillus fumigatus"],["Candida albicans"],["Cryptococcus neoformans"],["Mucor/Rhizopus"],["Pneumocystis jirovecii"]] },
+    "Sketchy Micro: Viruses": { "RNA + Sense":[["Coronavirus"],["Coxsackievirus A & B"],["Togaviridae (Equine Encephalitis/Chikungunya)"],["Flaviviridae overview"],["Hepatitis A"],["HIV Part 2: Life Cycle"],["HIV Part 1: Overview"],["Norovirus/Norwalk"],["Picornaviridae overview"],["Poliovirus"],["Rubella virus"],["Rhinovirus"],["Hepatitis C (Flaviviridae)"]], "RNA - Sense":[["Ebolavirus/Marburgvirus (Filo)"],["Hantavirus/Bunyaviridae"],["Influenzavirus (Orthomyxo)"],["LCMV (Arenaviridae)"],["Measles/Mumps/Parainfluenza (Paramyxo)"],["Rabies (Rhabdoviridae)"],["RSV/hMPV (Pneumoviridae)"],["Rotavirus/Colorado tick fever (Reo)"]], "DNA Viruses":[["Adenovirus"],["CMV (Herpesviridae)"],["Hepatitis B (Hepadnaviridae)"],["HSV 1 & 2"],["HHV-6 Roseola"],["HHV-8 Kaposi's"],["HPV (Papillomaviridae)"],["JC/BK Polyomavirus"],["Parvovirus B19"],["Smallpox/Cowpox/Molluscum (Poxviridae)"],["VZV (Herpesviridae)"],["EBV (Herpesviridae)"]] },
+    "Sketchy Micro: Parasites": { "Protozoa - Intestinal":[["Cryptosporidium"],["Entamoeba histolytica"],["Giardia lamblia"]], "Protozoa - CNS":[["Naegleria fowleri"],["Toxoplasma gondii"],["Trypanosoma brucei"]], "Protozoa - Blood":[["Babesia spp."],["Leishmania"],["Plasmodium Part 1"],["Plasmodium Part 2: Treatment"],["Trypanosoma cruzi"]], "Protozoa - Other":[["Trichomonas Vaginalis"]], "Helminths":[["Tissue Nematodes"],["Intestinal Nematodes"],["Cestodes"],["Trematodes"]] },
+    "Sketchy Pharm: Antimicrobials": { "Cell Wall Antibiotics":[["Ampicillin/Amoxicillin/Piperacillin"],["Cephalosporins"],["Daptomycin"],["Monobactams & Carbapenems"],["Nafcillin/Oxacillin/Methicillin/Dicloxacillin"],["Penicillin"],["Vancomycin"]], "Protein Synthesis Inhibitors":[["Aminoglycosides"],["Chloramphenicol"],["Clindamycin"],["Linezolid"],["Macrolides"],["Tetracyclines"]], "Antimycobacterials":[["Leprosy drugs"],["Tuberculosis Drugs"]], "Other Antibiotics":[["Fluoroquinolones"],["Metronidazole"],["TMP/SMX"]], "Antifungals":[["Amphotericin/flucytosine"],["Azoles"],["Griseofulvin/Terbinafine/Echinocandins"]], "Antivirals: HIV":[["Maraviroc/fusion/integrase inhibitors"],["NNRTIs"],["NRTIs"],["Protease inhibitors"]], "Antivirals: Other":[["Acyclovir/valacyclovir/famciclovir"],["Ganciclovir/valganciclovir/foscarnet"],["Hepatitis C: DAAs"]] }
+  }},
+
+  "Pathology": { icon:"🔬", sec:"I", bnb: {
+    "Pathology": { "General":[["Cellular Adaptations",18],["Cell Injury",11],["Free Radicals",18],["Apoptosis",16],["Necrosis",12],["Inflammation Principles",25],["Acute and Chronic Inflammation",17],["Granulomatous Inflammation",9],["Wound Healing and Scar",24],["Pathologic Calcification",8],["Neoplasia",25]] }
+  }, sketchy: {} },
+
+  "Pharmacology": { icon:"💊", sec:"I", bnb: {
+    "Basic Pharmacology": { "General":[["Enzymes",14],["Enzyme Inhibitors",8],["Dose-Response",21],["Drug Elimination",17],["Pharmacokinetics",27]] },
+    "Anesthesia": { "General":[["Inhaled Anesthetics",25],["IV Anesthetics",16],["Local Anesthetics",13],["Neuromuscular Blockers",19]] }
+  }, sketchy: {
+    "Sketchy Pharm: Foundations": { "PK Basics":[["Membranes/Partition Coefficient/Diffusion"],["Plasma Concentration & Therapeutic Range"]], "Absorption":[["Drug Absorption via Parenteral Routes"],["Oral Absorption & Bioavailability"]], "Distribution":[["Drug Distribution & Protein Binding"],["Volume of Distribution"]], "Metabolism":[["CYP450 Enzymes"],["P-Glycoprotein & Enterohepatic Recycling"]], "Elimination":[["Clearance & AUC"],["Elimination Rate/Half-Life/Steady State"]], "PD Basics":[["Agonists/Antagonists/Allosteric Modulators"]], "Drug Interactions":[["PD & PK Drug Interactions"]] }
+  }},
+
+  "Public Health Sciences": { icon:"📊", sec:"I", bnb: {
+    "Biostats/Epi": { "Biostatistics":[["Statistics",18],["Hypothesis Testing",22],["Tests of Significance",15],["Correlations",8]], "Epidemiology":[["Study Designs",19],["Risk Quantification",20],["Sensitivity and Specificity",21],["Predictive Value",13],["Diagnostic Tests",17],["Bias",23],["Clinical Trials",32],["Evidence-based Medicine",10]] },
+    "Behavioral Science": { "General":[["Ethics Principles",11],["Informed Consent",17],["Confidentiality",11],["Decision-Making Capacity",8],["Public Health",10],["Quality and Safety",30],["The Healthy Patient",13],["Geriatrics",9],["Pediatrics",22]] }
+  }, sketchy: {} },
+
+  "Cardiovascular": { icon:"❤️", sec:"II", bnb: {
+    "Cardiology": { "Anatomy/Physiology":[["Cardiac Anatomy",16],["Cardiac Physiology",28],["CV Response to Exercise",12],["Blood Flow Mechanics",32],["Regulation of BP",24],["PV Loops",20],["Wiggers' Diagram",12],["Venous Pressure Tracings",10],["Starling Curve",19]], "Cardiac Ischemia":[["Cardiac Ischemia I",18],["Cardiac Ischemia II",20],["Atherosclerosis",17],["STEMI",19],["UA/NSTEMI",10],["Stable Angina",25]], "EKGs":[["EKG Basics",27],["High Yield EKGs",18]], "Arrhythmias":[["Cardiac Action Potentials",21],["AV/Bundle Branch Blocks",26],["AFib and Flutter",29],["PSVT",13],["WPW",10],["Antiarrhythmic Drugs I",22],["Antiarrhythmic Drugs II",17],["Antiarrhythmic Drugs III",18]], "Auscultation":[["Heart Murmurs",29],["Heart Sounds",21]], "Heart Failure":[["HF Basics",26],["Systolic/Diastolic HF",21],["Restrictive Cardiomyopathy",14],["Acute HF",28],["Chronic HF",25]], "Developing Heart":[["Cardiac Embryology",20],["Shunts",24],["Cyanotic CHD",24],["Coarctation of Aorta",16]], "Hypertension":[["Hypertension",14],["Secondary HTN",23],["Antihypertensives I",26],["Antihypertensives II",20]], "Other CV":[["Valve Disease",38],["Shock",26],["Pericardial Disease",37],["Aortic Disease",16],["Cardiac Tumors",9],["HCM",23],["Infective Endocarditis",24]] }
+  }, sketchy: {
+    "Sketchy Pharm: CV & Renal": { "HF Drugs":[["ACE inhibitors/ARBs/Aliskiren"],["Digoxin"],["Sacubitril-Valsartan/Milrinone/Nesiritide/Ivabradine"]], "Diuretics":[["Acetazolamide/mannitol"],["K+ sparing diuretics"],["Thiazides"],["Loop Diuretics"]], "Antihypertensives":[["Calcium channel blockers"],["Primary HTN & hypertensive emergency"]], "Antiarrhythmics":[["Class I A-C Antiarrhythmics"],["Class V Antiarrhythmics"],["Class II Antiarrhythmics"],["Class III Antiarrhythmics"],["Class IV Antiarrhythmics"]] }
+  }},
+
+  "Endocrine": { icon:"⚗️", sec:"II", bnb: {
+    "Endocrinology": { "Thyroid":[["Thyroid A&P",15],["Thyroid Hormone Synthesis & Labs",25],["Hyperthyroidism",34],["Hypothyroidism/Thyroiditis",27],["Thyroid Cancer",15]], "Adrenals":[["Adrenal Glands",26],["Cushing's Syndrome",25],["Adrenal Insufficiency",21],["Hyperaldosteronism",20],["Adrenal Tumors",15],["CAH",21]], "Pancreas":[["Insulin",24],["Glucagon & Hypoglycemia",22],["Type I DM",24],["Type II DM",24],["Insulin Medications",16],["Treatment of DM",29]], "Repro Endo":[["Reproductive Hormones",23],["Male Repro Hormones",27],["Female Repro Hormones",17],["Contraceptives",15],["Menstrual Cycle",23],["Primary Amenorrhea",27],["Secondary Amenorrhea",29]], "Other":[["Pituitary A&P",24],["Pituitary Pathology",25],["Parathyroid Glands",16],["Parathyroid Pathology",30],["MEN Syndromes",11],["Signaling Pathways",20]] }
+  }, sketchy: {
+    "Sketchy Pharm: GI & Endocrine": { "Thyroid/Bone":[["Bisphosphonates/raloxifene/denosumab/calcitonin"],["Teriparatide/vit D/cinacalcet/sevelamer"],["PTU/methimazole/levothyroxine"],["Glucocorticoids"]], "Diabetes":[["Insulin/sulfonylureas/meglitinides/GLP-1/DPP-4"],["Metformin/TZDs/pramlintide/SGLT2"]], "Hypothalamic/Pituitary":[["ADH/DDAVP/ADH antagonists"],["GH/mecasermin/octreotide/pegvisomant"]], "Sex Hormones":[["SERMs & Aromatase Inhibitors"],["LHRH Agonists/GnRH Analogs"],["Non-Steroidal Antiandrogens"]] }
+  }},
+
+  "Gastrointestinal": { icon:"🫁", sec:"II", bnb: {
+    "Gastroenterology": { "Anatomy":[["GI Embryology",28],["GI Anatomy",11],["GI Blood Supply",18],["GI Tract",19],["Liver/GB/Pancreas",12],["Salivary Glands",14],["Hernias",19]], "GI Physiology":[["Bile",17],["Bilirubin",29],["GI Secretions",12],["GI Hormones",24],["Exocrine Pancreas",15]], "Clinical GI":[["Esophageal Disorders",23],["Liver Disease",22],["Cirrhosis",23],["Liver Tumors",10],["Wilson's/Hemochromatosis",15],["Gallstones",20],["Biliary Disorders",14],["Gastric Disorders",32],["Malabsorption",28],["Acute Pancreatitis",22],["Chronic Pancreatitis/Cancer",11],["Intestinal Disorders",23],["IBD",20],["Colon Cancer",24],["Carcinoid Tumors",7],["GI Pharmacology",22]] }
+  }, sketchy: {
+    "Sketchy Pharm: GI": { "GI Drugs":[["Antidiarrheals"],["Antiemetic agents"],["H2 blockers/PPIs"],["Laxatives"]] }
+  }},
+
+  "Hematology & Oncology": { icon:"🩸", sec:"II", bnb: {
+    "Hematology": { "Hemostasis":[["Coagulation",29],["Platelet Activation",13],["Hypercoagulable States",19],["Coagulopathies",14],["Platelet Disorders",24],["Antiplatelet Drugs",12],["Anticoagulants",29]], "RBCs":[["Hemolysis Basics",19],["Extrinsic Hemolysis",16],["Intrinsic Hemolysis",22],["Microcytic Anemias",33],["Thalassemias",21],["Sickle Cell",23],["Other Anemias",16],["Blood Groups",17]], "WBCs":[["Acute Leukemia",18],["Chronic Leukemia",15],["Hodgkin Lymphoma",9],["Non-Hodgkin Lymphoma",22],["Plasma Cell Disorders",14],["Amyloidosis",15],["Myeloproliferative Disorders",18]], "Cancer Drugs":[["Antimetabolites",17],["Alkylating Agents",10],["Antitumor Antibiotics",7],["Microtubule Inhibitors",7],["DNA Drugs",4],["Other Cancer Drugs",18]], "Other":[["Porphyrias",14]] }
+  }, sketchy: {
+    "Sketchy Pharm: Blood & Inflammation": { "Anticoag/Thrombolytics":[["Antiplatelet agents"],["Heparin/LMWH/fondaparinux/DTIs/Xa inhibitors"],["Thrombolytics"],["Warfarin"]], "Dyslipidemia":[["Cholestyramine/ezetimibe"],["Fibrates/niacin"],["PCSK9 inhibitors"],["Statins"]] },
+    "Sketchy Pharm: Antineoplastics": { "Antimetabolites":[["Azathioprine/6-MP/MMF"],["Cytotoxic Nucleoside Analogs"],["MTX/leucovorin/5-FU/hydroxyurea"]], "DNA & Cell Division":[["Alkylating Agents"],["Cytotoxic Antibiotics"],["Mitotic Inhibitors"],["Platins"],["Topoisomerase Inhibitors"]], "Targeted Therapy":[["Kinase Inhibitors"],["Monoclonal Antibody Therapy"]], "Immunology":[["Interferons"]] }
+  }},
+
+  "MSK, Skin & CT": { icon:"🦴", sec:"II", bnb: {
+    "Musculoskeletal": { "Anatomy/Ortho":[["Knee",24],["Shoulder and Elbow",18],["Brachial Plexus",19],["Wrist",15],["Hand",18],["Lumbosacral Plexus",19],["Lumbar Radiculopathy",13],["Hip",15]], "Cell Bio":[["Skeletal Muscle",27],["Cardiac Muscle",10],["Smooth Muscle",21],["Bone",21]], "Pathology":[["Bone Disorders",24],["Osteoporosis",14],["Osteoporosis Drugs",12],["Benign Bone Tumors",21],["Malignant Bone Tumors",10],["Arthritis",16],["Muscle Disorders",15],["Common MSK Conditions",15]] },
+    "Dermatology": { "General":[["Skin",14],["Epithelial Cells",13],["Skin Disorders I",20],["Skin Disorders II",10],["Pigment Disorders",7],["Vascular Lesions",11],["Skin Infections",13],["Blistering Disorders",10],["Hypersensitivity Disorders",13],["Skin Cancer",18],["Neurocutaneous Disorders",21]] }
+  }, sketchy: {} },
+
+  "Neuro & Special Senses": { icon:"🧠", sec:"II", bnb: {
+    "Neurology": { "Intro":[["Cells of NS",22],["Nerve Damage",16],["BBB",12],["Neurotransmitters",18],["Dermatomes/Reflexes",18],["Brain Injury",15]], "NS Structures":[["Cerebral Cortex",19],["Spinal Cord",30],["Spinal Cord Syndromes",30],["Brainstem",30],["Rules of 4s",15],["CN I",21],["CN II",21],["Auditory System",15],["Vestibular System",17],["Thalamus/Hypothalamus/Limbic",25],["Cerebellum",22],["Basal Ganglia",20],["Ventricles/Sinuses",22]], "Neurovascular":[["Cerebral Strokes",30],["VB Stroke Syndromes",19],["Intracranial Aneurysms",19],["Intracranial Bleeding",23],["Herniation Syndromes",18],["Treatment TIA/Stroke",19]], "Autonomic NS":[["ANS I",20],["ANS II",29],["Autonomic Receptors",20],["Adrenergic Drugs I",21],["Adrenergic Drugs II",23],["Cholinergic Drugs",20],["Cholinergic Toxidromes",11]], "Other Neuro":[["Meningitis I",18],["Meningitis II",21],["Seizures",23],["Anticonvulsants I",23],["Anticonvulsants II",15],["Neuroembryology",29],["Delirium",12],["Dementia",28],["Demyelinating Disease",18],["MS",20],["Headaches",21],["Adult Brain Tumors",17],["Childhood Brain Tumors",17],["Parkinson Disease",26],["Movement Disorders",14],["Sleep Physiology",16],["Sleep Disorders",21],["NMJ Disorders",18]] },
+    "Ophthalmology": { "General":[["Eye Anatomy",26],["Eye Disorders",23],["Lens",20],["Glaucoma",19],["The Retina",14],["Retinal Disorders I",13],["Retinal Disorders II",18],["Optic Nerve",18],["Gaze Disorders",26],["Visual Field Defects",13]] }
+  }, sketchy: {
+    "Sketchy Pharm: Autonomic": { "Parasympathetic":[["Acetylcholinesterase inhibitors"],["Cholinomimetics"],["Muscarinic antagonists"]], "Sympathetic":[["Alpha drugs"],["Beta blockers"],["Indirect sympathomimetics"],["Sympathomimetics"]] },
+    "Sketchy Pharm: Neuro/Psych": { "Anesthetics/Analgesics":[["Inhaled anesthetics/dantrolene"],["IV Anesthetics"],["Opioids/Naloxone/Naltrexone"]], "Mood Stabilizers/AEDs":[["Broad Spectrum Anti-Epileptics"],["Carbamazepine/oxcarbazepine/phenytoin/tiagabine/vigabatrin"],["Ethosuximide"],["Gabapentin/pregabalin"],["Lithium"]] },
+    "Sketchy Pharm: Smooth Muscle": { "Vasoactive":[["Nitrates"],["Prostaglandins/prostacyclin/bosentan/PDE5i"],["Triptans & migraine"]], "Allergy/Pulmonary":[["Antihistamines"],["Asthma therapy"]] }
+  }},
+
+  "Psychiatry": { icon:"🧩", sec:"II", bnb: {
+    "Psychiatry": { "Psychology":[["Conditioning/Transference",12],["Ego Defenses",12]], "Pathology":[["Child Abuse/Neglect",9],["Childhood Disorders",13],["ADHD and Autism",13],["Cognitive Disorders",12],["Psychosis",6],["Psychotic Disorders",13],["Dissociative Disorders",8],["Somatic/Factitious",9],["Personality Disorders",14],["Mood Disorders",21],["Anxiety Disorders",15],["Eating Disorders",11]], "Substance Use":[["Alcohol/CNS Depressants",17],["Opioids",13],["Stimulants",13],["Other Drugs",9]], "Pharmacology":[["Antidepressants",20],["Lithium",9],["Antipsychotics",22]] }
+  }, sketchy: {
+    "Sketchy Pharm: Neuro/Psych (Psych)": { "Antidepressants":[["Bupropion/mirtazapine/trazodone"],["MAO inhibitors"],["SSRIs/SNRIs/cyproheptadine"],["Tricyclic antidepressants"],["Buspirone"]], "Antipsychotics/Parkinson's":[["First gen antipsychotics"],["Parkinsonism Drugs"],["Second gen antipsychotics"]], "Psychostimulants":[["Amphetamine/Dexamph/Lisdex/Methylphenidate"],["Narcolepsy Drugs"]], "Sedative-Hypnotics":[["Barbiturates"],["Benzodiazepines/flumazenil"],["Non-benzo hypnotics/melatonin/ramelteon"]], "Other":[["Varenicline (Smoking Cessation)"]] }
+  }},
+
+  "Renal": { icon:"🫘", sec:"II", bnb: {
+    "Renal": { "Embryo/A&P":[["Renal Embryology",15],["Renal Anatomy",5],["Renal Physiology I",26],["Renal Physiology II",31],["Nephron Physiology",38],["Renal Endocrine Function",17]], "Acid-Base":[["Acid Excretion",9],["Acid-Base Principles",30],["Respiratory Disorders",11],["Metabolic Alkalosis",17],["RTA",19],["Metabolic Acidosis",29],["Acid Base Problems",20]], "Electrolytes":[["Electrolyte Disorders",23],["Na and Water Balance",23],["Sodium Disorders",35]], "Nephron Diseases":[["GN Principles",15],["Nephritic Syndrome",21],["Nephrotic Syndrome",18],["MPGN",7],["Tubulointerstitial Disease",14],["Renal Failure",21]], "Other Renal":[["UTIs",8],["Cystic Kidney Disease",7],["Diuretics",22],["Kidney Stones",11],["Renal/Bladder Tumors",12],["Rhabdomyolysis",7]] }
+  }, sketchy: {} },
+
+  "Reproductive": { icon:"🧬", sec:"II", bnb: {
+    "Reproductive": { "Embryology":[["Embryonic Genes",12],["Embryogenesis",8],["Germ Layers",8],["Errors in Morphogenesis",5],["Teratogens I",16],["Teratogens II",12],["Pharyngeal Arches",14],["Cleft Lip/Palate",3],["Pharyngeal Pouches/Clefts",6],["Genital Embryology",16]], "Pregnancy":[["Sperm/Oogenesis",12],["Placenta",13],["Twins",6],["Pregnancy",14],["Maternal-Fetal Disorders",17],["HTN in Pregnancy",11],["Placental Complications",14],["Gestational Tumors",12],["TORCH",14]], "Vagina/Cervix/Uterus":[["Vaginal Cancer",5],["Cervical Cancer",9],["Endometrial Disorders",12],["Endometriosis",10],["Endometrial Cancer",10]], "Ovary":[["Ovarian Cysts",6],["Ovarian Epithelial Tumors",12],["Ovarian Stromal Tumors",6],["Ovarian Germ Cell Tumors",11]], "Breast":[["Breast Tissue",12],["Breast Disorders",15],["Breast Carcinoma",17]], "Male":[["Penile Disorders",18],["Scrotal Disorders",14],["Testicular Cancer",14],["Prostate",16]], "Other":[["Disorders of Sexual Development",24],["Hypogonadism",12]] }
+  }, sketchy: {} },
+
+  "Respiratory": { icon:"🌬️", sec:"II", bnb: {
+    "Pulmonary": { "Embryo/A&P":[["Pulm Embryology",28],["Pulm Anatomy I",17],["Pulm Anatomy II",23],["Pulm Physiology I",19],["Pulm Physiology II",18],["Hemoglobin",25],["Pulm Circulation",18],["Pulm HTN",15],["V/Q",22],["Dead Space",23],["Hypoxia",13],["Hypoxemia",34],["CO2",27],["Lung Physical Exam",14]], "Obstructive/Restrictive":[["PFTs",24],["COPD",23],["Asthma/Bronchiectasis",18],["Restrictive Lung Disease",21],["Treatment COPD/Asthma",24]], "Other Pulm":[["Pneumonia I",21],["Pneumonia II",18],["Pleural Disease",25],["Lung Cancer",26],["Sleep Apnea",13],["Cystic Fibrosis",22],["TB",22],["Sarcoidosis",11],["DVT & PE",32],["Chest X-rays",10]] }
+  }, sketchy: {} }
+};
+
+// ─── FLATTEN ────
+function flatten() {
+  const a = [];
+  Object.entries(DATA).forEach(([fa, d]) => {
+    ["bnb","sketchy"].forEach(res => {
+      if (!d[res]) return;
+      Object.entries(d[res]).forEach(([cat, subs]) => {
+        Object.entries(subs).forEach(([sub, vids]) => {
+          vids.forEach(v => {
+            const name = v[0], dur = v[1] || 0;
+            a.push({ id: `${res}|${fa}|${cat}|${sub}|${name}`, fa, cat, sub, name, dur, res });
+          });
+        });
+      });
+    });
+  });
+  return a;
+}
+const ALL = flatten();
+const TOTAL = ALL.length;
+const BNB_COUNT = ALL.filter(v=>v.res==="bnb").length;
+const SK_COUNT = ALL.filter(v=>v.res==="sketchy").length;
+const TOTAL_MIN = ALL.reduce((a,v)=>a+v.dur,0);
+const FA = Object.keys(DATA);
+const today = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+const toLocal = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const dBetween = (a,b) => Math.ceil((new Date(b)-new Date(a))/864e5);
+
+const UW_Q = {"Biochemistry":132,"Immunology":110,"Microbiology":304,"Pathology":41,"Pharmacology":46,"Public Health Sciences":292,"Cardiovascular":422,"Endocrine":218,"Gastrointestinal":315,"Hematology & Oncology":234,"MSK, Skin & CT":274,"Neuro & Special Senses":474,"Psychiatry":180,"Renal":231,"Reproductive":193,"Respiratory":266};
+const UW_TOTAL = Object.values(UW_Q).reduce((a,b)=>a+b,0);
+const FA_PG = {"Biochemistry":31,"Immunology":93,"Microbiology":121,"Pathology":201,"Pharmacology":227,"Public Health Sciences":255,"Cardiovascular":283,"Endocrine":329,"Gastrointestinal":363,"Hematology & Oncology":409,"MSK, Skin & CT":449,"Neuro & Special Senses":499,"Psychiatry":569,"Renal":595,"Reproductive":629,"Respiratory":677};
+
+const C = {
+  bg:"var(--bg)", card:"var(--bg2)", cardH:"var(--bg3)", bdr:"var(--bdr)",
+  pri:"var(--pri)", priD:"var(--pri-d)", priT:"var(--pri-t)",
+  sec:"var(--amb)", secD:"var(--amb-d)",
+  blu:"var(--sge)", bluD:"var(--grn-d)",
+  pur:"var(--lav)", purD:"var(--lav-d)",
+  txt:"var(--txt)", txD:"var(--txt3)", txM:"var(--txt2)",
+  red:"var(--red)", grn:"var(--grn)",
+  shadow:"var(--shadow)", shadowLg:"var(--shadow-lg)",
+};
+
+function App() {
+  const [done, setDone] = useState({});
+  const [dLog, setDLog] = useState({});
+  const [exam, setExam] = useState("2026-10-26");
+  const [tab, setTab] = useState("dash");
+  const [expFA, setExpFA] = useState(null);
+  const [expSub, setExpSub] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [ready, setReady] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [search, setSearch] = useState("");
+  const [resFilter, setResFilter] = useState("all"); // all | bnb | sketchy
+  const [uw, setUw] = useState({}); // {fa: questionsCompleted}
+  const [curFA, setCurFA] = useState(null); // current focused system
+  const [cal, setCal] = useState(null); // calendar schedule {date: [videoIds]}
+  const [calDay, setCalDay] = useState(null); // expanded day in calendar
+  const [movingVid, setMovingVid] = useState(null); // video being moved
+  const [revs, setRevs] = useState({}); // {dateKey: [{vid,type,name,fa}]}
+  const [revsDone, setRevsDone] = useState({}); // {"vid|type": true}
+  const [diff, setDiff] = useState({});
+  const [nbme, setNbme] = useState([]); // [{form, date, score, pct}]
+  const [nbmeForm, setNbmeForm] = useState(""); // form being entered
+  const [nbmeDate, setNbmeDate] = useState(today());
+  const [nbmeScore, setNbmeScore] = useState("");
+  const [nbmePct, setNbmePct] = useState("");
+
+  // NBME score → estimated Step 1 3-digit conversion table (approximate)
+  // Based on published USMLE score correlations
+  const NBME_CONV = {
+    "Free 120":{max:120,label:"Free 120"},
+    "NBME 10":{max:200,label:"NBME Form 10"},
+    "NBME 11":{max:200,label:"NBME Form 11"},
+    "NBME 12":{max:200,label:"NBME Form 12"},
+    "NBME 13":{max:200,label:"NBME Form 13"},
+    "NBME 17":{max:200,label:"NBME Form 17"},
+    "NBME 18":{max:200,label:"NBME Form 18"},
+    "NBME 19":{max:200,label:"NBME Form 19"},
+    "NBME 20":{max:200,label:"NBME Form 20"},
+    "NBME 21":{max:200,label:"NBME Form 21"},
+    "NBME 26":{max:200,label:"NBME Form 26"},
+    "NBME 27":{max:200,label:"NBME Form 27"},
+    "NBME 28":{max:200,label:"NBME Form 28"},
+    "NBME 29":{max:200,label:"NBME Form 29"},
+    "NBME 30":{max:200,label:"NBME Form 30"},
+    "UWSim 1":{max:200,label:"UWorld Sim 1"},
+    "UWSim 2":{max:200,label:"UWorld Sim 2"},
+  };
+
+  // % correct → predicted Step 1 score (rough conversion, industry standard)
+  const pctToStep1 = (pct) => {
+    if(!pct) return null;
+    const p = parseFloat(pct);
+    if(isNaN(p)) return null;
+    // Calibrated curve: 40%→180, 50%→193, 60%→210, 70%→226, 75%→233, 80%→240, 85%→247, 90%→255
+    if(p>=90) return Math.round(255+(p-90)*1.2);
+    if(p>=85) return Math.round(247+(p-85)*1.6);
+    if(p>=80) return Math.round(240+(p-80)*1.4);
+    if(p>=75) return Math.round(233+(p-75)*1.4);
+    if(p>=70) return Math.round(226+(p-70)*1.4);
+    if(p>=60) return Math.round(210+(p-60)*1.6);
+    if(p>=50) return Math.round(193+(p-50)*1.7);
+    return Math.round(180+(p-40)*1.3);
+  };
+
+  const saveNbme = (n) => { setNbme(n); try{localStorage.setItem("s1tNbme",JSON.stringify(n))}catch(e){}; }; // {videoId: "easy"|"medium"|"hard"}
+  const [pomo, setPomo] = useState({active:false,running:false,sec:25*60,mode:"work",round:1});
+  const pomoRef = React.useRef(null);
+  const [studyHrs, setStudyHrs] = useState({}); // {dateKey: totalMinutes}
+  const [sessionStart, setSessionStart] = useState(null); // timestamp when session started
+  const [sessionElapsed, setSessionElapsed] = useState(0); // live seconds
+  const sessionRef = React.useRef(null);
+  const DAILY_GOAL = 480; // 8 hours in minutes
+
+  // Dynamic adaptive schedule — rebalances on every load
+  const BLACKOUT = []; // full days off (none set yet)
+  const SUNDAY_MAX_MIN = 240; // 4 hours max on Sundays
+  // Reduced capacity days: date → max study minutes available
+  const REDUCED = {};
+  const REV_LABELS = {dump:"🧠 Brain Dump",r1:"🔁 Rev 1 (24h)",r2:"🔁 Rev 2 (7d)",r3:"🔁 Rev 3 (30d)",r1x:"🔴 Hard Rev (3d)",r2x:"🔴 Hard Rev (14d)"};
+
+  const exportProgress = ()=>{
+    const ids=Object.keys(done);
+    const names=ids.map(id=>{const v=ALL.find(x=>x.id===id);return v?v.name:id;});
+    const txt=`COMPLETED VIDEOS (${ids.length}):\n${names.join("\n")}\n\nRAW IDS:\n${ids.join("\n")}`;
+    navigator.clipboard?.writeText(txt).then(()=>flash("Progress copied to clipboard!")).catch(()=>{});
+    console.log(txt);
+    flash("Progress copied — paste it to Claude");
+  };
+
+  const addDaysTo = (dateStr, n) => {
+    const d=new Date(dateStr+"T12:00:00"); d.setDate(d.getDate()+n);
+    let k=toLocal(d); while(BLACKOUT.includes(k)){d.setDate(d.getDate()+1);k=toLocal(d);} return k;
+  };
+  const scheduleRevs = (vid, name, fa, dateStr, rv) => {
+    const nr={...rv};
+    const add=(dk,e)=>{if(!nr[dk])nr[dk]=[];nr[dk].push(e);};
+    add(dateStr,{vid,type:"dump",name,fa});
+    add(addDaysTo(dateStr,1),{vid,type:"r1",name,fa});
+    add(addDaysTo(dateStr,7),{vid,type:"r2",name,fa});
+    add(addDaysTo(dateStr,30),{vid,type:"r3",name,fa});
+    return nr;
+  };
+  const removeRevs = (vid, rv) => {
+    const nr={}; Object.entries(rv).forEach(([k,arr])=>{const f=arr.filter(r=>r.vid!==vid);if(f.length)nr[k]=f;}); return nr;
+  };
+  const saveRevs = (r,rd)=>{setRevs(r);setRevsDone(rd);try{localStorage.setItem("s1tRevs",JSON.stringify({revs:r,revsDone:rd}))}catch(e){}};
+
+  const rebalanceCal = useCallback((doneMap, existingCal) => {
+    const dm = doneMap || {};
+    const sc = {};
+    const t0 = today();
+
+    // Preserve past days: only keep DONE video IDs (undone ones get rolled forward)
+    if (existingCal) {
+      Object.keys(existingCal).forEach(k => {
+        if (k < t0) {
+          sc[k] = (existingCal[k] || []).filter(vid => dm[vid]);
+        }
+      });
+    }
+
+    // Collect ALL undone videos in correct order
+    const sysOrder = ["Cardiovascular","Endocrine","Gastrointestinal","Hematology & Oncology","MSK, Skin & CT","Neuro & Special Senses","Psychiatry","Renal","Reproductive","Respiratory"];
+    const biochemVids = ALL.filter(v=>v.fa==="Biochemistry"&&!dm[v.id]);
+    const slot2Order = ["Immunology","Pathology","Pharmacology","Public Health Sciences"];
+    const slot2Vids = [];
+    slot2Order.forEach(fa=>{ALL.filter(v=>v.fa===fa&&!dm[v.id]).forEach(v=>slot2Vids.push(v));});
+    const microBnB = ALL.filter(v=>v.fa==="Microbiology"&&v.res==="bnb"&&!dm[v.id]);
+    const microSK = ALL.filter(v=>v.fa==="Microbiology"&&v.res==="sketchy"&&!dm[v.id]);
+    const microVids = [];
+    for(let i=0;i<Math.max(microBnB.length,microSK.length);i++){
+      if(i<microBnB.length) microVids.push(microBnB[i]);
+      if(i<microSK.length) microVids.push(microSK[i]);
+    }
+    // System videos in order, undone only
+    const sysVidQueues = {};
+    sysOrder.forEach(sys=>{ sysVidQueues[sys]=ALL.filter(v=>v.fa===sys&&!dm[v.id]); });
+
+    // Calculate study days from today to exam minus 30 (UWorld review period)
+    const examD = new Date(exam || "2026-10-26");
+    const maxDate = new Date(examD); maxDate.setDate(maxDate.getDate()-21);
+
+    // Distribute from today forward
+    let bi=0, s2i=0, mi=0;
+    let curSysIdx = 0;
+    // Figure out which system we should be on based on what's done
+    for(let i=0;i<sysOrder.length;i++){
+      if(sysVidQueues[sysOrder[i]].length > 0){ curSysIdx=i; break; }
+    }
+    let sysVidIdx = 0;
+    let d = new Date(t0+"T12:00:00");
+
+    for(let dayOff=0; dayOff<120 && (bi<biochemVids.length||s2i<slot2Vids.length||mi<microVids.length||curSysIdx<sysOrder.length); dayOff++){
+      const k = toLocal(d);
+      const isSunday = d.getDay() === 0;
+      const isBlackout = BLACKOUT.includes(k);
+
+      if (isBlackout) {
+        sc[k] = [];
+        d.setDate(d.getDate()+1);
+        continue;
+      }
+
+      sc[k] = [];
+      let dayMin = 0;
+      const maxMin = REDUCED[k] ? REDUCED[k] : isSunday ? SUNDAY_MAX_MIN : 9999;
+
+      // Slot 1: Biochem — 1/day
+      if(bi<biochemVids.length) {
+        const v=biochemVids[bi];
+        if(dayMin+(v.dur||10) <= maxMin){ sc[k].push(v.id); dayMin+=(v.dur||10); bi++; }
+      }
+      // Slot 2: Immuno/Path/Pharm/PHS — 1/day
+      if(s2i<slot2Vids.length) {
+        const v=slot2Vids[s2i];
+        if(dayMin+(v.dur||10) <= maxMin){ sc[k].push(v.id); dayMin+=(v.dur||10); s2i++; }
+      }
+      // Slot 3: Micro — 2/day
+      for(let i=0;i<2&&mi<microVids.length;i++){
+        const v=microVids[mi];
+        if(dayMin+(v.dur||10) <= maxMin){ sc[k].push(v.id); dayMin+=(v.dur||10); mi++; }
+      }
+      // Slot 4: System of the week
+      if(curSysIdx < sysOrder.length){
+        const sys = sysOrder[curSysIdx];
+        const sq = sysVidQueues[sys];
+        const remaining = sq.length - sysVidIdx;
+        if(remaining <= 0){ curSysIdx++; sysVidIdx=0; d.setDate(d.getDate()+1); continue; }
+        // How many days left in this "week"? Aim for ~7 days per system
+        const isReduced = isSunday || !!REDUCED[k];
+        const sysPerDay = isReduced ? 2 : Math.max(1, Math.ceil(remaining / 7));
+        let added = 0;
+        while(sysVidIdx < sq.length && added < sysPerDay) {
+          const v = sq[sysVidIdx];
+          if(dayMin+(v.dur||10) > maxMin) break;
+          sc[k].push(v.id);
+          dayMin += (v.dur||10);
+          sysVidIdx++; added++;
+        }
+        // If system is done, move to next
+        if(sysVidIdx >= sq.length){ curSysIdx++; sysVidIdx=0; }
+      }
+
+      d.setDate(d.getDate()+1);
+    }
+    return sc;
+  },[exam]);
+
+  // Pre-completed videos: EMPTY (complete restart)
+  const PRE_DONE = {};
+
+  useEffect(() => { try { let loadedDone={}; const r=localStorage.getItem("s1tv3"); if(r){ const d=JSON.parse(r); loadedDone=d.done||{}; setDLog(d.dLog||{}); setReady(d.ready||false); setUw(d.uw||{}); setCurFA(d.curFA||null); setDiff(d.diff||{}); } else { setReady(true); } setExam("2026-10-26");
+Object.entries(PRE_DONE).forEach(([id,dt])=>{if(!loadedDone[id])loadedDone[id]=dt;}); setDone(loadedDone); const sh=localStorage.getItem("s1tHrs"); if(sh) setStudyHrs(JSON.parse(sh)); const ss=localStorage.getItem("s1tSession"); if(ss){const p=JSON.parse(ss);if(p.start){setSessionStart(p.start);}} const rv=localStorage.getItem("s1tRevs"); if(rv){const p=JSON.parse(rv);setRevs(p.revs||{});setRevsDone(p.revsDone||{});} const nb=localStorage.getItem("s1tNbme"); if(nb) setNbme(JSON.parse(nb)); const nc=rebalanceCal(loadedDone,null); setCal(nc); localStorage.setItem("s1tCal14",JSON.stringify(nc)); localStorage.setItem("s1tv3",JSON.stringify({done:loadedDone,dLog:{},exam:"2026-10-26",ready:true,uw:{},curFA:"Cardiovascular",diff:{}})); } catch(e){const nc=rebalanceCal(PRE_DONE,null);setCal(nc);} setLoading(false); }, []);
+
+  // Live session elapsed timer
+  useEffect(()=>{
+    if(sessionStart){
+      sessionRef.current=setInterval(()=>{
+        setSessionElapsed(Math.floor((Date.now()-sessionStart)/1000));
+      },1000);
+      return ()=>clearInterval(sessionRef.current);
+    } else { setSessionElapsed(0); if(sessionRef.current)clearInterval(sessionRef.current); }
+  },[sessionStart]);
+
+  const saveHrs=(h)=>{setStudyHrs(h);try{localStorage.setItem("s1tHrs",JSON.stringify(h))}catch(e){}};
+  const startSession=()=>{const now=Date.now();setSessionStart(now);try{localStorage.setItem("s1tSession",JSON.stringify({start:now}))}catch(e){} flash("Session started — clock is running");};
+  const stopSession=()=>{
+    if(!sessionStart) return;
+    const mins=Math.round((Date.now()-sessionStart)/60000);
+    const t2=today();
+    const nh={...studyHrs}; nh[t2]=(nh[t2]||0)+mins; saveHrs(nh);
+    setSessionStart(null);
+    try{localStorage.removeItem("s1tSession")}catch(e){}
+    flash(`+${mins} min logged (${Math.floor(mins/60)}h ${mins%60}m)`);
+  };
+  const addManualMins=(mins)=>{const t2=today();const nh={...studyHrs};nh[t2]=(nh[t2]||0)+mins;saveHrs(nh);flash(`+${mins} min added`);};
+  const todayMins=(studyHrs[today()]||0)+(sessionStart?Math.floor((Date.now()-sessionStart)/60000):0);
+  const todayHrs=Math.floor(todayMins/60);
+  const todayRemMin=todayMins%60;
+  const goalPct=Math.min(100,Math.round(todayMins/DAILY_GOAL*100));
+
+  const save = useCallback((d,dl,e,r,u,cf,df)=>{ try{localStorage.setItem("s1tv3",JSON.stringify({done:d,dLog:dl,exam:e,ready:r,uw:u,curFA:cf,diff:df||{}}))}catch(e){} },[]);
+  const flash = m=>{ setToast(m); setTimeout(()=>setToast(null),1800); };
+  const saveCal = (c)=>{setCal(c);try{localStorage.setItem("s1tCal14",JSON.stringify(c))}catch(e){}};
+  const moveVid = (vid,fromDay,toDay)=>{
+    if(!cal||fromDay===toDay) return;
+    const nc={...cal};
+    nc[fromDay]=(nc[fromDay]||[]).filter(v=>v!==vid);
+    if(!nc[toDay]) nc[toDay]=[];
+    nc[toDay].push(vid);
+    saveCal(nc);setMovingVid(null);flash("Moved!");
+  };
+  const resetCal = ()=>{if(confirm("Regenerate calendar? This resets any moves you've made.")){const nc=rebalanceCal(done,null);saveCal(nc);flash("Calendar reset")}};
+  const exportICS = ()=>{
+    if(!cal) return;
+    let ics="BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Step1Tracker//EN\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\nX-WR-CALNAME:Step 1 Study Plan\n";
+    const pad=n=>String(n).padStart(2,"0");
+    const toICSDate=(d)=>`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
+    Object.keys(cal).sort().forEach(dateKey=>{
+      const vids=cal[dateKey]||[];
+      if(!vids.length) return;
+      // Group by FA section
+      const groups={};
+      vids.forEach(vid=>{
+        const vd=ALL.find(x=>x.id===vid);
+        if(!vd) return;
+        const cat=vd.fa;
+        if(!groups[cat]) groups[cat]={names:[],totalMin:0};
+        groups[cat].names.push(vd.name+(vd.dur?` (${vd.dur}m)`:""));
+        groups[cat].totalMin+=vd.dur||0;
+      });
+      const dt=new Date(dateKey+"T00:00:00");
+      const dtEnd=new Date(dt);dtEnd.setDate(dtEnd.getDate()+1);
+      Object.entries(groups).forEach(([cat,g])=>{
+        const pg=FA_PG[cat]?` | FA p.${FA_PG[cat]}`:"";
+        ics+="BEGIN:VEVENT\n";
+        ics+=`DTSTART;VALUE=DATE:${toICSDate(dt)}\n`;
+        ics+=`DTEND;VALUE=DATE:${toICSDate(dtEnd)}\n`;
+        ics+=`SUMMARY:📚 ${cat} (${g.names.length} vids${g.totalMin?", "+g.totalMin+"m":""})\n`;
+        ics+=`DESCRIPTION:${g.names.join("\\n")}${pg}\n`;
+        ics+=`UID:s1t-${dateKey}-${cat.replace(/[^a-zA-Z]/g,"")}-${Date.now()}@step1tracker\n`;
+        ics+="END:VEVENT\n";
+      });
+    });
+    ics+="END:VCALENDAR";
+    const blob=new Blob([ics],{type:"text/calendar"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;a.download="step1-study-plan.ics";
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    flash("Calendar exported!");
+  };
+
+  const toggle = id => {
+    const t = today(), nd={...done}, nl={...dLog};
+    if(!nl[t]) nl[t]={c:0,m:0};
+    const v = ALL.find(x=>x.id===id);
+    if(nd[id]){
+      delete nd[id]; nl[t].c=Math.max(0,(nl[t].c||0)-1); nl[t].m=Math.max(0,(nl[t].m||0)-(v?.dur||0));
+      // Remove scheduled revisions
+      const nr=removeRevs(id,revs); const nrd={...revsDone}; ["dump","r1","r2","r3"].forEach(tp=>delete nrd[id+"|"+tp]); saveRevs(nr,nrd);
+    } else {
+      nd[id]=t; nl[t].c=(nl[t].c||0)+1; nl[t].m=(nl[t].m||0)+(v?.dur||0); flash(`✓ ${v?.name}`);
+      // Schedule brain dump + 3 revision waves
+      const nr=scheduleRevs(id,v?.name||"?",v?.fa||"?",t,revs); saveRevs(nr,revsDone);
+    }
+    setDone(nd); setDLog(nl); save(nd,nl,exam,true,uw,curFA,diff);
+    const nc = rebalanceCal(nd, cal); saveCal(nc);
+  };
+  const toggleRev = (vid,type) => {
+    const key=vid+"|"+type; const nrd={...revsDone};
+    if(nrd[key]) delete nrd[key]; else { nrd[key]=true; flash("✓ Revision done"); }
+    saveRevs(revs,nrd);
+  };
+  const rateDiff = (id, level) => {
+    const nd={...diff,[id]:level}; setDiff(nd); save(done,dLog,exam,true,uw,curFA,nd);
+    // Hard topics get extra revision at day 3 and day 14
+    if(level==="hard"&&done[id]){
+      const v=ALL.find(x=>x.id===id); const t2=done[id]||today();
+      let nr={...revs};
+      const add=(dk,e)=>{if(!nr[dk])nr[dk]=[];if(!nr[dk].some(r=>r.vid===e.vid&&r.type===e.type))nr[dk].push(e);};
+      add(addDaysTo(t2,3),{vid:id,type:"r1x",name:v?.name||"?",fa:v?.fa||"?"});
+      add(addDaysTo(t2,14),{vid:id,type:"r2x",name:v?.name||"?",fa:v?.fa||"?"});
+      saveRevs(nr,revsDone);
+    }
+    flash(level==="hard"?"⚠️ Marked hard — extra reviews added":level==="easy"?"✅ Easy":"🟡 Medium");
+  };
+
+  const dc = Object.keys(done).length;
+  const pct = Math.round(dc/TOTAL*100);
+  const t = today(), dLeft = dBetween(t,exam), sDays = Math.max(dLeft-30,1);
+  const rem = TOTAL-dc, target = Math.ceil(rem/sDays);
+  const tLog = dLog[t]||{c:0,m:0};
+
+  // Weak areas — topics rated hard
+  const weakTopics = useMemo(()=>Object.entries(diff).filter(([_,d])=>d==="hard").map(([id])=>{const v=ALL.find(x=>x.id===id);return v?{name:v.name,fa:v.fa}:null;}).filter(Boolean),[diff]);
+
+  // Readiness score — composite of video progress + UWorld + revision completion
+  const readiness = useMemo(()=>{
+    const uwDoneTotal=Object.values(uw).reduce((a,b)=>a+b,0);
+    const uwPct=UW_TOTAL>0?uwDoneTotal/UW_TOTAL*100:0;
+    const revTotal=Object.values(revs).reduce((a,arr)=>a+arr.length,0);
+    const revDoneN=Object.keys(revsDone).length;
+    const revPct=revTotal>0?revDoneN/revTotal*100:0;
+    return Math.min(100,Math.round(pct*0.4 + uwPct*0.35 + revPct*0.25));
+  },[pct,uw,revs,revsDone]);
+
+  const streak = useMemo(()=>{ let c=0,d=new Date(); if(!dLog[toLocal(d)]?.c) d.setDate(d.getDate()-1); while(true){ const k=toLocal(d); if(dLog[k]?.c>0){c++;d.setDate(d.getDate()-1);}else break; } return c; },[dLog]);
+
+  const secStats = useMemo(()=>{ const s={}; FA.forEach(fa=>{ const vs=ALL.filter(v=>v.fa===fa); const dn=vs.filter(v=>done[v.id]).length; s[fa]={t:vs.length,d:dn,p:vs.length?Math.round(dn/vs.length*100):0, bnb:vs.filter(v=>v.res==="bnb").length, sk:vs.filter(v=>v.res==="sketchy").length, bnbD:vs.filter(v=>v.res==="bnb"&&done[v.id]).length, skD:vs.filter(v=>v.res==="sketchy"&&done[v.id]).length }; }); return s; },[done]);
+
+  const filtered = useMemo(()=>{ if(!search.trim()) return []; const q=search.toLowerCase(); return ALL.filter(v=>(resFilter==="all"||v.res===resFilter)&&(v.name.toLowerCase().includes(q)||v.sub.toLowerCase().includes(q)||v.cat.toLowerCase().includes(q))).slice(0,40); },[search,resFilter]);
+
+  // Pomodoro timer
+  const pomoStart = ()=>{
+    if(pomoRef.current) clearInterval(pomoRef.current);
+    setPomo(p=>({...p,running:true,active:true}));
+    pomoRef.current=setInterval(()=>{
+      setPomo(prev=>{
+        if(prev.sec<=1){
+          clearInterval(pomoRef.current);pomoRef.current=null;
+          try{new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdH2Nk5KLgHZxa3B7h5OYmZSKfnNtcX2Ll5yZk4d7cW1zf42YnJiShn1zbXN/jZicmJKGfXNtc3+NmJyYkoZ9c21zf42YnJiShn1zAA==").play();}catch(e){}
+          if(prev.mode==="work"){
+            const isLong=prev.round%4===0;
+            flash(isLong?"🎉 Long break! 15 min":"☕ Break time! 5 min");
+            return {...prev,sec:isLong?15*60:5*60,mode:"break",running:false};
+          } else {
+            flash("💪 Focus time! 25 min");
+            return {...prev,sec:25*60,mode:"work",round:prev.round+1,running:false};
+          }
+        }
+        return {...prev,sec:prev.sec-1};
+      });
+    },1000);
+  };
+  const pomoPause = ()=>{ if(pomoRef.current){clearInterval(pomoRef.current);pomoRef.current=null;} setPomo(p=>({...p,running:false})); };
+  const pomoReset = ()=>{ if(pomoRef.current){clearInterval(pomoRef.current);pomoRef.current=null;} setPomo({active:true,running:false,sec:25*60,mode:"work",round:1}); };
+  const pomoToggle = ()=>setPomo(p=>({...p,active:!p.active}));
+  const fmtTime = s=>{ const m=Math.floor(s/60),sc=s%60; return `${m}:${String(sc).padStart(2,'0')}`; };
+
+  if(loading) return <div style={{minHeight:"100vh",background:C.bg,display:"flex",alignItems:"center",justifyContent:"center"}}><p style={{color:C.txD,fontFamily:"'Outfit'"}}>Loading...</p></div>;
+
+  if(!ready) return (
+    <div style={S.ctr}><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <div style={{maxWidth:480,margin:"0 auto",padding:"48px 20px",textAlign:"center"}}>
+      <div style={{fontSize:52,marginBottom:8}}>🩺</div>
+      <h1 style={{...S.h1,fontSize:28,background:`linear-gradient(135deg,${C.pri},${C.blu})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Step 1 Tracker</h1>
+      <p style={{color:C.txD,fontSize:14,lineHeight:1.6,margin:"8px 0 24px"}}>{BNB_COUNT} B&B + {SK_COUNT} Sketchy + {UW_TOTAL} UWorld Qs<br/>{TOTAL+UW_TOTAL} total items · Mapped to First Aid</p>
+      <div style={{textAlign:"left",marginBottom:20}}><label style={S.lbl}>Exam Date</label><input type="date" value={exam} onChange={e=>setExam(e.target.value)} style={S.di}/></div>
+      <div style={{...S.cd,textAlign:"left",padding:14,marginBottom:20}}>
+        {FA.map(fa=>{ const d=DATA[fa],vs=ALL.filter(v=>v.fa===fa),b=vs.filter(v=>v.res==="bnb").length,sk=vs.filter(v=>v.res==="sketchy").length; return (
+          <div key={fa} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.bdr}`,fontSize:13}}>
+            <span style={{color:C.txt}}>{d.icon} {fa}</span>
+            <span style={{color:C.txD,fontFamily:"'JetBrains Mono'",fontSize:11}}>{b} B&B{sk?` + ${sk} SK`:""}{UW_Q[fa]?` + ${UW_Q[fa]} UW`:""}</span>
+          </div>);
+        })}
+      </div>
+      <button onClick={()=>{setReady(true);save(done,dLog,exam,true,uw,curFA,diff)}} style={S.btn}>Start Tracking →</button>
+    </div></div>
+  );
+
+  const TABS=[["dash","🏠","Home"],["nbme","📊","NBME Scores"],["cal","📅","Calendar"],["videos","📹","Videos"],["search","🔍","Search"],["settings","⚙️","Settings"]];
+
+  return (
+    <div style={S.ctr}>
+      <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+      <style>{`@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}.an{animation:fi .25s ease forwards}.ck{width:20px;height:20px;border-radius:4px;border:1.5px solid ${C.bdr};background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}.ck.d{background:${C.pri};border-color:${C.pri}}.ck.sk{border-color:${C.pur}}.ck.sk.d{background:${C.pur};border-color:${C.pur}}.vr{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;cursor:pointer;transition:background .15s}.vr:hover{background:rgba(255,255,255,0.04)}`}</style>
+
+      {toast&&<div style={S.toast}>{toast}</div>}
+
+      {/* Floating Pomodoro Timer */}
+      {pomo.active&&<div style={{position:"fixed",bottom:24,right:24,zIndex:50,background:C.card,border:`1px solid ${pomo.mode==="work"?C.pri:"rgba(96,165,250,0.3)"}`,borderRadius:12,padding:"18px 22px",boxShadow:"0 8px 40px rgba(0,0,0,0.6)",minWidth:200}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+          <span style={{color:pomo.mode==="work"?C.pri:C.blu,fontSize:11,fontWeight:700,textTransform:"uppercase",letterSpacing:1}}>{pomo.mode==="work"?"Focus":"Break"}</span>
+          <div style={{display:"flex",gap:6,alignItems:"center"}}>
+            <span style={{color:C.txM,fontSize:10,fontFamily:"'JetBrains Mono'"}}>Round {pomo.round}/4</span>
+            <button onClick={pomoToggle} style={{background:"transparent",border:"none",color:C.txM,fontSize:16,cursor:"pointer",padding:0}}>✕</button>
+          </div>
+        </div>
+        <div style={{textAlign:"center",margin:"4px 0 14px"}}>
+          <span style={{fontSize:42,fontWeight:800,fontFamily:"'JetBrains Mono'",color:pomo.sec<=60&&pomo.mode==="work"?C.red:C.txt,letterSpacing:"-2px"}}>{fmtTime(pomo.sec)}</span>
+        </div>
+        <div style={{display:"flex",gap:8}}>
+          {!pomo.running
+            ?<button onClick={pomoStart} style={{flex:1,padding:"9px 0",borderRadius:7,border:"none",background:pomo.mode==="work"?C.pri:C.blu,color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer"}}>{pomo.sec===(pomo.mode==="work"?25*60:pomo.round%4===0?15*60:5*60)?"Start":"Resume"}</button>
+            :<button onClick={pomoPause} style={{flex:1,padding:"9px 0",borderRadius:7,border:`1px solid ${C.bdr}`,background:"rgba(255,255,255,0.04)",color:C.txt,fontSize:13,fontWeight:600,cursor:"pointer"}}>Pause</button>}
+          <button onClick={pomoReset} style={{padding:"9px 14px",borderRadius:7,border:`1px solid ${C.bdr}`,background:"rgba(255,255,255,0.04)",color:C.txM,fontSize:13,cursor:"pointer"}}>↺</button>
+        </div>
+      </div>}
+
+      {/* ── SIDEBAR ── */}
+      <div style={S.sidebar}>
+        <div style={{padding:"0 22px 22px",borderBottom:`1px solid ${C.bdr}`,marginBottom:18}}>
+          <div style={{fontSize:11,fontWeight:700,color:C.txM,letterSpacing:"0.14em",textTransform:"uppercase",marginBottom:3}}>USMLE</div>
+          <div style={{fontSize:26,fontWeight:800,color:C.txt,letterSpacing:"-1px",lineHeight:1,fontFamily:"'Inter'"}}>Step 1</div>
+          <div style={{marginTop:10,padding:"8px 12px",background:"var(--pri-d)",borderRadius:"var(--r-sm)",border:"1px solid var(--pri)"}}>
+            <div style={{fontSize:11,color:C.txM,fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:2}}>Exam in</div>
+            <div style={{fontSize:22,fontWeight:800,color:C.pri,fontFamily:"'JetBrains Mono'",letterSpacing:"-0.5px"}}>{dLeft}<span style={{fontSize:13,fontWeight:500,color:C.txM,marginLeft:4}}>days</span></div>
+          </div>
+        </div>
+        {sessionStart
+          ?<div style={{margin:"0 12px 14px",padding:"12px 14px",borderRadius:8,background:"rgba(59,130,246,0.08)",border:`1px solid rgba(59,130,246,0.2)`}}>
+            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
+              <div style={{width:7,height:7,borderRadius:"50%",background:C.pri,animation:"pulse 1.5s infinite"}}/>
+              <span style={{fontSize:10,fontWeight:700,color:C.pri,textTransform:"uppercase",letterSpacing:"0.06em"}}>Session active</span>
+            </div>
+            <div style={{fontSize:22,fontWeight:800,fontFamily:"'JetBrains Mono'",color:C.txt,letterSpacing:"-0.5px"}}>{Math.floor(sessionElapsed/3600)}:{String(Math.floor(sessionElapsed%3600/60)).padStart(2,'0')}:{String(sessionElapsed%60).padStart(2,'0')}</div>
+            <button onClick={stopSession} style={{marginTop:8,width:"100%",padding:"6px 0",borderRadius:6,border:"none",background:C.red,color:"#fff",fontSize:11,fontWeight:700,cursor:"pointer"}}>Stop & Save</button>
+          </div>
+          :<div style={{margin:"0 12px 14px"}}>
+            <button onClick={startSession} style={{width:"100%",padding:"10px 0",borderRadius:8,border:"none",background:C.pri,color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",letterSpacing:"0.02em"}}>▶ Start Session</button>
+          </div>}
+        <div style={S.tBar}>
+          {TABS.map(([t,icon,label])=>(
+            <button key={t} onClick={()=>setTab(t)} style={{...S.tBtn,...(tab===t?{background:"var(--pri-d)",color:C.pri,fontWeight:600}:{color:C.txM})}}>
+              <span style={{fontSize:18,opacity:tab===t?1:0.65}}>{icon}</span>
+              <span style={{fontSize:14}}>{label}</span>
+            </button>
+          ))}
+        </div>
+        <div style={{marginTop:"auto",padding:"16px 12px 0",borderTop:`1px solid ${C.bdr}`}}>
+          <button onClick={pomoToggle} style={{width:"100%",padding:"10px 14px",borderRadius:8,border:`1px solid ${pomo.active?C.pri:C.bdr}`,background:pomo.active?C.priD:"transparent",color:pomo.active?C.pri:C.txM,fontSize:12,fontWeight:600,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+            <span>⏱ Pomodoro</span>
+            <span style={{fontFamily:"'JetBrains Mono'",fontSize:12,fontWeight:700}}>{pomo.running?fmtTime(pomo.sec):"25:00"}</span>
+          </button>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 14px",borderRadius:8,background:"rgba(245,158,11,0.08)",border:"1px solid rgba(245,158,11,0.2)"}}>
+            <span style={{fontSize:13,color:C.sec,fontWeight:600}}>🔥 Streak</span>
+            <span style={{fontSize:22,fontWeight:800,color:C.sec,fontFamily:"'JetBrains Mono'"}}>{streak}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── MAIN CONTENT ── */}
+      <div style={S.main}>
+
+      {tab==="dash"&&<div className="an">
+        <p style={S.pageTitle}>Good {new Date().getHours()<12?"morning":"afternoon"}, Arun 👋</p>
+        <p style={S.pageSub}>{new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})} · Day {Math.max(1,dBetween("2026-07-05",t)+1)} of {dBetween("2026-07-05",exam)}</p>
+        {/* Motivational banner */}
+        <div style={{...S.cd,background:"linear-gradient(135deg,var(--pri-d),var(--grn-d))",border:"1px solid var(--pri)",padding:"18px 24px",marginBottom:14,display:"flex",alignItems:"center",gap:16}}>
+          <span style={{fontSize:28}}>✨</span>
+          <div>
+            <div style={{fontSize:15,color:C.txt,fontWeight:500,lineHeight:1.5}}>{getMotto(pct)}</div>
+            <div style={{fontSize:12,color:C.txM,marginTop:3}}>Oct 26, 2026 · {dLeft} days remaining</div>
+          </div>
+        </div>
+        {(()=>{
+          const dayNum = Math.max(1, dBetween("2026-07-05",t)+1);
+          const totalDays = dBetween("2026-07-05",exam);
+          const pctTime = Math.round(dayNum/totalDays*100);
+          const pctWork = pct;
+          const pace = pctWork >= pctTime ? "ahead" : pctWork >= pctTime-5 ? "on-track" : "behind";
+          const paceCol = pace==="ahead"?C.grn:pace==="on-track"?C.pri:C.red;
+          const paceLbl = pace==="ahead"?"Ahead of schedule":pace==="on-track"?"On track":"Behind — pick up the pace";
+          const daysStudied = Object.keys(dLog).filter(k=>dLog[k]?.c>0).length || 1;
+          const vPerDay = dc / daysStudied;
+          const estDaysLeft = vPerDay > 0 ? Math.ceil(rem / vPerDay) : 999;
+          const estFinish = new Date(); estFinish.setDate(estFinish.getDate() + estDaysLeft);
+          const uwDoneTotal = Object.values(uw).reduce((a,b)=>a+b,0);
+          return (<>
+          {/* Countdown card */}
+          <div style={{...S.cd,padding:0,overflow:"hidden"}}>
+            <div style={{padding:"16px 16px 12px",background:"rgba(0,191,165,0.03)"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                <div>
+                  <div style={{color:C.txM,fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:.5}}>Day {dayNum} of {totalDays}</div>
+                  <div style={{color:C.txt,fontSize:22,fontWeight:700,margin:"2px 0"}}>{dLeft} days left</div>
+                  <div style={{display:"inline-block",padding:"3px 10px",borderRadius:20,fontSize:10,fontWeight:600,background:pace==="ahead"?"rgba(102,187,106,0.12)":pace==="on-track"?C.priD:"rgba(239,83,80,0.12)",color:paceCol}}>{paceLbl}</div>
+                </div>
+                <div style={S.strk}><span style={{fontSize:15}}>🔥</span><span style={{fontSize:17,fontWeight:700,color:C.sec,fontFamily:"'JetBrains Mono'"}}>{streak}</span></div>
+              </div>
+              <div style={{marginTop:12,position:"relative"}}>
+                <div style={{height:6,borderRadius:3,background:C.bdr,overflow:"hidden",position:"relative"}}>
+                  <div style={{position:"absolute",height:"100%",width:`${pctTime}%`,background:"rgba(255,255,255,0.06)",borderRadius:3}}/>
+                  <div style={{position:"absolute",height:"100%",width:`${pctWork}%`,background:"linear-gradient(90deg,var(--pri),var(--sge))",borderRadius:3,transition:"width 0.6s ease"}}/>
+                </div>
+                <div style={{display:"flex",justifyContent:"space-between",marginTop:4}}>
+                  <span style={{fontSize:9,color:C.txD,fontFamily:"'JetBrains Mono'"}}>Apr 7</span>
+                  <span style={{fontSize:9,color:C.txD,fontFamily:"'JetBrains Mono'"}}>{dc>0?`Est. finish ~${estFinish.toLocaleDateString("en",{month:"short",day:"numeric"})}`:"Start studying!"}</span>
+                  <span style={{fontSize:9,color:C.txD,fontFamily:"'JetBrains Mono'"}}>{new Date(exam).toLocaleDateString("en",{month:"short",day:"numeric"})}</span>
+                </div>
+              </div>
+            </div>
+            <div style={{display:"flex",borderTop:`1px solid ${C.bdr}`}}>
+              {[["Videos",`${dc}/${TOTAL}`,C.pri],["UWorld",`${uwDoneTotal}/${UW_TOTAL}`,C.blu],["Today",tLog.c,C.sec],["Avg/day",dc>0?Math.round(dc/daysStudied):0,C.txM]].map(([l,v,c],i)=>(
+                <div key={l} style={{flex:1,padding:"10px 8px",textAlign:"center",borderRight:i<3?`1px solid ${C.bdr}`:"none"}}>
+                  <div style={{color:c,fontSize:15,fontWeight:700,fontFamily:"'JetBrains Mono'"}}>{v}</div>
+                  <div style={{color:C.txD,fontSize:9,marginTop:1}}>{l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 2-col grid: Study Hours + 7-day chart */}
+          <div style={S.grid2}>
+          {/* Study Hours Tracker */}
+          <div style={{...S.cd,padding:0,overflow:"hidden"}}>
+            <div style={{padding:"14px 16px 12px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                <div>
+                  <div style={{color:C.txM,fontSize:10,fontWeight:600,textTransform:"uppercase",letterSpacing:.5}}>Today's study time</div>
+                  <div style={{display:"flex",alignItems:"baseline",gap:4,marginTop:2}}>
+                    <span style={{color:todayMins>=DAILY_GOAL?C.grn:C.txt,fontSize:28,fontWeight:700,fontFamily:"'JetBrains Mono'"}}>{todayHrs}h {todayRemMin}m</span>
+                    <span style={{color:C.txD,fontSize:11}}>/ 8h goal</span>
+                  </div>
+                </div>
+                {sessionStart?
+                  <div style={{textAlign:"center"}}>
+                    <div style={{color:C.pri,fontSize:20,fontWeight:700,fontFamily:"'JetBrains Mono'",marginBottom:4}}>{Math.floor(sessionElapsed/3600)}:{String(Math.floor(sessionElapsed%3600/60)).padStart(2,'0')}:{String(sessionElapsed%60).padStart(2,'0')}</div>
+                    <button onClick={stopSession} style={{padding:"6px 16px",borderRadius:8,border:"none",background:C.red,color:"#fff",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit'"}}>Stop Session</button>
+                  </div>
+                :
+                  <button onClick={startSession} style={{padding:"10px 20px",borderRadius:10,border:"none",background:C.pri,color:"#000",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit'"}}>Start Session</button>
+                }
+              </div>
+              {/* Progress bar to 8h */}
+              <div style={{height:8,borderRadius:4,background:C.bdr,overflow:"hidden",position:"relative"}}>
+                <div style={{height:"100%",width:`${goalPct}%`,background:todayMins>=DAILY_GOAL?C.grn:todayMins>=DAILY_GOAL*0.5?C.pri:C.sec,borderRadius:4,transition:"width .5s"}}/>
+                {[2,4,6].map(h=><div key={h} style={{position:"absolute",top:0,left:`${h/8*100}%`,width:1,height:"100%",background:"rgba(255,255,255,0.1)"}}/>)}
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",marginTop:4}}>
+                {[0,2,4,6,8].map(h=><span key={h} style={{fontSize:8,color:C.txD,fontFamily:"'JetBrains Mono'"}}>{h}h</span>)}
+              </div>
+            </div>
+            {/* Quick add + weekly summary */}
+            <div style={{display:"flex",borderTop:`1px solid ${C.bdr}`}}>
+              <button onClick={()=>addManualMins(30)} style={{flex:1,padding:"8px 0",border:"none",borderRight:`1px solid ${C.bdr}`,background:"transparent",color:C.txM,fontSize:11,cursor:"pointer",fontFamily:"'Outfit'"}}>+30m</button>
+              <button onClick={()=>addManualMins(60)} style={{flex:1,padding:"8px 0",border:"none",borderRight:`1px solid ${C.bdr}`,background:"transparent",color:C.txM,fontSize:11,cursor:"pointer",fontFamily:"'Outfit'"}}>+1h</button>
+              <button onClick={()=>addManualMins(120)} style={{flex:1,padding:"8px 0",border:"none",borderRight:`1px solid ${C.bdr}`,background:"transparent",color:C.txM,fontSize:11,cursor:"pointer",fontFamily:"'Outfit'"}}>+2h</button>
+              <div style={{flex:2,padding:"8px 12px",textAlign:"center"}}>
+                <span style={{color:C.txD,fontSize:10,fontFamily:"'JetBrains Mono'"}}>This week: {Math.round(Array.from({length:7}).reduce((a,_,i)=>{const d=new Date();d.setDate(d.getDate()-i);return a+(studyHrs[toLocal(d)]||0);},0)/60)}h</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 4 Study Tracks */}
+          <div style={{...S.cd,padding:"12px 14px 8px"}}>
+            <div style={{color:C.txM,fontSize:10,fontWeight:600,marginBottom:8,textTransform:"uppercase",letterSpacing:.5}}>Study tracks</div>
+            {[
+              {label:"Biochemistry",fas:["Biochemistry"],col:C.blu},
+              {label:"Immuno / Path / Pharm / PHS",fas:["Immunology","Pathology","Pharmacology","Public Health Sciences"],col:"#AB47BC"},
+              {label:"Microbiology",fas:["Microbiology"],col:C.sec},
+            ].map((trk,i)=>{
+              const tot=trk.fas.reduce((a,f)=>a+ALL.filter(v=>v.fa===f).length,0);
+              const dn=trk.fas.reduce((a,f)=>a+ALL.filter(v=>v.fa===f&&done[v.id]).length,0);
+              const p=tot?Math.round(dn/tot*100):0;
+              const curF=trk.fas.find(f=>ALL.some(v=>v.fa===f&&!done[v.id]))||trk.fas[0];
+              return (
+                <div key={i} style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+                  <div style={{width:3,height:36,borderRadius:2,background:trk.col,flexShrink:0}}/>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <span style={{color:C.txt,fontSize:12,fontWeight:500}}>{trk.fas.length>1?curF:trk.label}</span>
+                      <span style={{color:trk.col,fontSize:10,fontFamily:"'JetBrains Mono'",fontWeight:600}}>{p}%</span>
+                    </div>
+                    <div style={{color:C.txD,fontSize:9,margin:"1px 0 3px"}}>{dn}/{tot} videos</div>
+                    <div style={{height:3,borderRadius:2,background:C.bdr,overflow:"hidden"}}><div style={{height:"100%",width:`${p}%`,background:trk.col,borderRadius:2,transition:"width .5s"}}/></div>
+                  </div>
+                </div>
+              );
+            })}
+            {(()=>{
+              const fa=curFA||FA.find(f=>ALL.filter(v=>v.fa===f).some(v=>!done[v.id])&&!["Biochemistry","Immunology","Pathology","Pharmacology","Public Health Sciences","Microbiology"].includes(f))||"Cardiovascular";
+              const vs=ALL.filter(v=>v.fa===fa);const dn=vs.filter(v=>done[v.id]).length;const p=vs.length?Math.round(dn/vs.length*100):0;
+              return (
+                <div style={{display:"flex",alignItems:"center",gap:10}}>
+                  <div style={{width:3,height:36,borderRadius:2,background:C.pri,flexShrink:0}}/>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <span style={{color:C.pri,fontSize:12,fontWeight:600}}>{DATA[fa].icon} {fa}</span>
+                      <span style={{color:C.pri,fontSize:10,fontFamily:"'JetBrains Mono'",fontWeight:600}}>{p}%</span>
+                    </div>
+                    <div style={{color:C.txD,fontSize:9,margin:"1px 0 3px"}}>{dn}/{vs.length} videos · FA p.{FA_PG[fa]}</div>
+                    <div style={{height:3,borderRadius:2,background:C.bdr,overflow:"hidden"}}><div style={{height:"100%",width:`${p}%`,background:"linear-gradient(90deg,var(--pri),var(--sge))",borderRadius:2,transition:"width 0.5s ease"}}/></div>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* 7-day velocity */}
+          <div style={{...S.cd,padding:"12px 14px"}}>
+            <div style={{color:C.txM,fontSize:10,fontWeight:600,marginBottom:8,textTransform:"uppercase",letterSpacing:.5}}>Last 7 days</div>
+            <div style={{display:"flex",alignItems:"flex-end",gap:4,height:64}}>
+              {Array.from({length:7}).map((_,i)=>{
+                const d=new Date();d.setDate(d.getDate()-(6-i));
+                const k=toLocal(d);
+                const c=dLog[k]?.c||0;
+                const hrs=(studyHrs[k]||0)/60;
+                const max=Math.max(...Array.from({length:7}).map((_,j)=>{const d2=new Date();d2.setDate(d2.getDate()-(6-j));return (studyHrs[toLocal(d2)]||0)/60;}),1);
+                const h=hrs>0?Math.max(10,Math.round(hrs/max*50)):3;
+                const isT=k===t;
+                const hitGoal=(studyHrs[k]||0)>=DAILY_GOAL;
+                return (
+                  <div key={k} style={{flex:1,textAlign:"center"}}>
+                    <div style={{height:h,borderRadius:3,background:hitGoal?C.grn:isT?C.pri:hrs>0?"rgba(0,191,165,0.4)":C.bdr,margin:"0 auto",width:"65%",transition:"height .3s"}}/>
+                    <div style={{fontSize:8,color:isT?C.pri:C.txD,marginTop:4,fontFamily:"'JetBrains Mono'"}}>{d.toLocaleDateString("en",{weekday:"narrow"})}</div>
+                    {hrs>0&&<div style={{fontSize:8,color:hitGoal?C.grn:C.txD,fontFamily:"'JetBrains Mono'"}}>{hrs.toFixed(1)}h</div>}
+                    {c>0&&<div style={{fontSize:7,color:C.txD,fontFamily:"'JetBrains Mono'"}}>{c}v</div>}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          </div>{/* end 2-col grid */}
+
+          {/* 2-col grid: UWorld + Readiness/Weak Areas */}
+          <div style={S.grid2}>
+          {/* System map */}
+          <div style={{...S.cd,padding:"12px 14px 8px"}}>
+            <div style={{color:C.txM,fontSize:10,fontWeight:600,marginBottom:8,textTransform:"uppercase",letterSpacing:.5}}>All systems</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+              {FA.map(fa=>{
+                const st=secStats[fa]; const d2=DATA[fa];
+                const isCur=(curFA||"Cardiovascular")===fa;
+                return (
+                  <div key={fa} onClick={()=>{setCurFA(fa);save(done,dLog,exam,true,uw,fa,diff);setTab("cal");}} style={{
+                    padding:"8px 10px",borderRadius:8,cursor:"pointer",
+                    border:`1px solid ${isCur?"rgba(0,191,165,0.3)":st.p===100?"rgba(102,187,106,0.3)":C.bdr}`,
+                    background:isCur?"rgba(0,191,165,0.04)":st.p===100?"rgba(102,187,106,0.04)":"transparent",
+                  }}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <span style={{fontSize:11,color:st.p===100?C.grn:isCur?C.pri:C.txt}}>{d2.icon} {fa.length>14?fa.slice(0,14)+"…":fa}</span>
+                      <span style={{fontSize:9,color:st.p===100?C.grn:C.txD,fontFamily:"'JetBrains Mono'",fontWeight:600}}>{st.p}%</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* UWorld Tracker */}
+          <div style={{...S.cd,padding:"12px 14px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+              <span style={{color:C.blu,fontSize:12,fontWeight:600}}>❓ UWorld — {uwDoneTotal}/{UW_TOTAL}</span>
+              <span style={{color:C.blu,fontSize:11,fontWeight:700,fontFamily:"'JetBrains Mono'"}}>{UW_TOTAL>0?Math.round(uwDoneTotal/UW_TOTAL*100):0}%</span>
+            </div>
+            <div style={{height:5,borderRadius:3,background:C.bdr,overflow:"hidden",marginBottom:10}}><div style={{height:"100%",width:`${UW_TOTAL>0?uwDoneTotal/UW_TOTAL*100:0}%`,background:C.blu,borderRadius:3,transition:"width .4s"}}/></div>
+            {FA.map(fa=>{const total=UW_Q[fa]||0;if(!total)return null;const d2=uw[fa]||0;const p2=Math.round(d2/total*100);return(
+              <div key={fa} style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
+                <span style={{fontSize:10,color:C.txt,width:90,flexShrink:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{DATA[fa].icon} {fa.length>12?fa.slice(0,12)+"…":fa}</span>
+                <div style={{flex:1,height:3,borderRadius:2,background:C.bdr,overflow:"hidden"}}><div style={{height:"100%",width:`${p2}%`,background:C.blu,borderRadius:2,transition:"width .4s"}}/></div>
+                <button onClick={()=>{const n={...uw};n[fa]=Math.max(0,(n[fa]||0)-1);setUw(n);save(done,dLog,exam,true,n,curFA,diff);}} style={{...S.uwBtn,width:22,height:22,fontSize:12}}>−</button>
+                <span style={{fontSize:9,fontFamily:"'JetBrains Mono'",color:C.txM,minWidth:40,textAlign:"center"}}>{d2}/{total}</span>
+                <button onClick={()=>{const n={...uw};n[fa]=Math.min(total,(n[fa]||0)+1);setUw(n);save(done,dLog,exam,true,n,curFA,diff);flash("+1 UW");}} style={{...S.uwBtn,width:22,height:22,fontSize:12,background:C.bluD,borderColor:"rgba(66,165,245,0.3)",color:C.blu}}>+</button>
+              </div>);
+            })}
+          </div>
+
+          {/* Readiness Score */}
+          <div style={{...S.cd,padding:0,overflow:"hidden"}}>
+            <div style={{display:"flex",alignItems:"center",gap:16,padding:16}}>
+              <svg width="70" height="70" viewBox="0 0 70 70"><circle cx="35" cy="35" r="29" fill="none" stroke={C.bdr} strokeWidth="5"/><circle cx="35" cy="35" r="29" fill="none" stroke={readiness>=70?C.grn:readiness>=40?C.sec:C.red} strokeWidth="5" strokeLinecap="round" strokeDasharray={`${2*Math.PI*29}`} strokeDashoffset={`${2*Math.PI*29*(1-readiness/100)}`} transform="rotate(-90 35 35)" style={{transition:"stroke-dashoffset .8s"}}/><text x="35" y="33" textAnchor="middle" fill={C.txt} fontSize="16" fontWeight="700" fontFamily="'JetBrains Mono'">{readiness}</text><text x="35" y="45" textAnchor="middle" fill={C.txD} fontSize="7">READY</text></svg>
+              <div style={{flex:1}}>
+                <div style={{color:C.txt,fontSize:14,fontWeight:600,marginBottom:4}}>Exam readiness</div>
+                <div style={{color:C.txD,fontSize:10,lineHeight:1.6}}>
+                  40% videos · 35% UWorld · 25% revisions<br/>
+                  {readiness>=70?"Looking strong!":readiness>=40?"Getting there — keep pushing":"Early days — stay consistent"}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Weak Areas */}
+          {weakTopics.length>0&&<div style={{...S.cd,padding:"12px 14px"}}>
+            <div style={{color:C.red,fontSize:10,fontWeight:600,marginBottom:8,textTransform:"uppercase",letterSpacing:.5}}>⚠️ Weak areas ({weakTopics.length})</div>
+            <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+              {weakTopics.slice(0,12).map((w,i)=>(
+                <span key={i} style={{fontSize:10,padding:"3px 8px",borderRadius:6,background:"rgba(239,83,80,0.1)",border:"1px solid rgba(239,83,80,0.2)",color:C.red}}>{w.name}</span>
+              ))}
+              {weakTopics.length>12&&<span style={{fontSize:10,color:C.txD}}>+{weakTopics.length-12} more</span>}
+            </div>
+          </div>}
+          </div>{/* end 2-col grid */}
+
+          <div style={{display:"flex",gap:8,marginBottom:10}}>
+            <button onClick={()=>setTab("cal")} style={{...S.btn,flex:1}}>Open Calendar →</button>
+            <button onClick={exportICS} style={{...S.btn,flex:"none",padding:"13px 20px",background:C.bluD,color:C.blu,border:`1px solid rgba(96,165,250,0.3)`}}>Export .ics</button>
+          </div>
+          </>);
+        })()}
+      </div>}
+
+      {/* ═══ RUNNA-STYLE CALENDAR ═══ */}
+      {tab==="cal"&&cal&&<div className="an">
+        <p style={S.pageTitle}>Calendar</p>
+        <p style={S.pageSub}>Your full study schedule through October 26, 2026</p>
+        {movingVid&&<div style={{position:"sticky",top:0,zIndex:10,background:C.sec,color:"#000",padding:"8px 14px",borderRadius:8,marginBottom:8,fontSize:12,fontWeight:600,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <span>Moving: {ALL.find(v=>v.id===movingVid)?.name||"?"}</span>
+          <button onClick={()=>setMovingVid(null)} style={{background:"rgba(0,0,0,0.2)",border:"none",color:"#000",borderRadius:6,padding:"4px 10px",fontSize:11,fontWeight:700,cursor:"pointer"}}>Cancel</button>
+        </div>}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+          <span style={{color:C.txt,fontWeight:700,fontSize:16}}>Training calendar</span>
+          <div style={{display:"flex",gap:6}}>
+            <button onClick={exportICS} style={{background:C.priD,border:`1px solid rgba(0,191,165,0.3)`,borderRadius:6,color:C.pri,fontSize:10,padding:"4px 10px",cursor:"pointer",fontFamily:"'Outfit'",fontWeight:600}}>Export .ics</button>
+            <button onClick={resetCal} style={{background:"transparent",border:`1px solid ${C.bdr}`,borderRadius:6,color:C.txD,fontSize:10,padding:"4px 10px",cursor:"pointer",fontFamily:"'Outfit'"}}>Reset</button>
+          </div>
+        </div>
+        {(()=>{
+          const sysOrder=["Cardiovascular","Endocrine","Gastrointestinal","Hematology & Oncology","MSK, Skin & CT","Neuro & Special Senses","Psychiatry","Renal","Reproductive","Respiratory"];
+          const sysLabels=["Cardio","Endo","GI","Heme/Onc","MSK/Skin","Neuro","Psych","Renal","Repro","Resp"];
+          const sysCols=["#EF5350","#AB47BC","#FF8A65","#EF5350","#66BB6A","#42A5F5","#AB47BC","#42A5F5","#FF8A65","#66BB6A"];
+          const startD=new Date("2026-07-05");
+          const weeks=[];
+          for(let w=0;w<13;w++){
+            const days=[];
+            for(let d=0;d<7;d++){
+              const dt=new Date(startD);dt.setDate(dt.getDate()+w*7+d);
+              const k=toLocal(dt);
+              days.push({key:k,date:dt,vids:cal[k]||[]});
+            }
+            weeks.push({weekNum:w+1,label:w<10?sysLabels[w]:"UW 2nd Pass",sysName:w<10?sysOrder[w]:"UWorld Review",col:w<10?sysCols[w]:C.blu,days});
+          }
+          const t2=today();
+          return weeks.map(wk=>{
+            const d1=wk.days[0].date,dN=wk.days[6].date;
+            const totalVids=wk.days.reduce((a,d)=>a+d.vids.length,0);
+            const doneVids=wk.days.reduce((a,d)=>a+d.vids.filter(v=>done[v]).length,0);
+            const hasToday=wk.days.some(d=>d.key===t2);
+            return (
+              <div key={wk.weekNum} style={{...S.cd,padding:0,overflow:"hidden",marginBottom:10,border:hasToday?`1px solid rgba(0,191,165,0.25)`:`1px solid ${C.bdr}`}}>
+                <div style={{padding:"14px 16px 10px"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                    <div>
+                      <div style={{color:C.txt,fontSize:14,fontWeight:600}}>{d1.toLocaleDateString("en",{month:"short",day:"numeric"})} - {dN.toLocaleDateString("en",{month:"short",day:"numeric"})}</div>
+                      <div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}>
+                        <span style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:4,padding:"2px 8px",fontSize:10,fontWeight:700,color:C.txt,fontFamily:"'JetBrains Mono'"}}>WEEK {wk.weekNum}</span>
+                        <span style={{fontSize:11,color:wk.col,fontWeight:600}}>{wk.label}</span>
+                        {FA_PG[wk.sysName]&&<span style={{color:C.blu,fontSize:9,fontFamily:"'JetBrains Mono'"}}>FA p.{FA_PG[wk.sysName]}</span>}
+                      </div>
+                    </div>
+                    <div style={{textAlign:"right",color:C.txD,fontSize:11}}>Total: <span style={{color:C.txt,fontWeight:600}}>{doneVids}/{totalVids}</span></div>
+                  </div>
+                </div>
+                {wk.days.map(day=>{
+                  const isToday=day.key===t2;
+                  const isExp=calDay===day.key;
+                  const dayDone=day.vids.filter(v=>done[v]).length;
+                  const allDoneD=dayDone===day.vids.length&&day.vids.length>0;
+                  const isMT=!!movingVid&&!day.vids.includes(movingVid);
+                  const totalMin=day.vids.reduce((a,v)=>{const vd=ALL.find(x=>x.id===v);return a+(vd?.dur||0);},0);
+                  const isSun=day.date.getDay()===0;
+                  return (
+                    <div key={day.key} style={{borderTop:`1px solid ${C.bdr}`}}>
+                      <div onClick={()=>{if(movingVid){const src=Object.keys(cal).find(k=>(cal[k]||[]).includes(movingVid));if(src)moveVid(movingVid,src,day.key);}else setCalDay(isExp?null:day.key);}} style={{display:"flex",alignItems:"center",padding:"12px 16px",cursor:"pointer",background:isToday?"rgba(0,191,165,0.04)":isMT?"rgba(255,138,101,0.04)":"transparent"}}>
+                        <div style={{width:42,flexShrink:0,textAlign:"center"}}>
+                          <div style={{color:C.txM,fontSize:10,fontWeight:600,textTransform:"uppercase"}}>{day.date.toLocaleDateString("en",{weekday:"short"})}</div>
+                          <div style={{color:isToday?C.pri:C.txt,fontSize:16,fontWeight:isToday?700:500,background:isToday?"rgba(0,191,165,0.15)":"transparent",borderRadius:20,width:28,height:28,lineHeight:"28px",margin:"2px auto 0"}}>{day.date.getDate()}</div>
+                        </div>
+                        {day.vids.length===0?
+                          <div style={{flex:1,paddingLeft:12,color:C.txD,fontSize:12}}>{BLACKOUT.includes(day.key)?"Day Off":isSun?"Rest Day":"—"}</div>
+                        :
+                          <div style={{flex:1,display:"flex",alignItems:"center",gap:10,paddingLeft:8}}>
+                            <div style={{width:3,borderRadius:2,height:36,background:allDoneD?C.grn:wk.col,flexShrink:0}}/>
+                            <div style={{flex:1}}>
+                              <div style={{color:allDoneD?C.txD:C.txt,fontSize:13,fontWeight:500}}>{day.vids.length} videos{(revs[day.key]||[]).length>0?` + ${(revs[day.key]||[]).length} rev`:""}{allDoneD?" ✓":""}</div>
+                              <div style={{color:C.txD,fontSize:10,fontFamily:"'JetBrains Mono'"}}>{totalMin>0?totalMin+"m":"Sketchy"}{dayDone>0&&!allDoneD?` · ${dayDone} done`:""}{REDUCED[day.key]?" · ⚡ light day":""}</div>
+                            </div>
+                            {allDoneD&&<span style={{color:C.grn,fontSize:16}}>✓</span>}
+                            {isMT&&<span style={{fontSize:9,color:C.sec,fontWeight:700,background:C.secD,padding:"3px 8px",borderRadius:4}}>DROP</span>}
+                          </div>
+                        }
+                      </div>
+                      {isExp&&!movingVid&&<div style={{padding:"0 16px 12px"}}>
+                        {day.vids.map(vid=>{
+                          const vd=ALL.find(x=>x.id===vid);const dn=!!done[vid];if(!vd)return null;
+                          const catCol=vd.fa==="Microbiology"?C.sec:["Biochemistry","Immunology","Pathology","Pharmacology","Public Health Sciences"].includes(vd.fa)?C.blu:vd.res==="sketchy"?C.pur:wk.col;
+                          return (
+                            <div key={vid} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 0",borderBottom:`1px solid ${C.bdr}`}}>
+                              <div style={{width:3,height:28,borderRadius:2,background:dn?C.grn:catCol,flexShrink:0}}/>
+                              <div className={`ck ${vd.res==="sketchy"?"sk":""} ${dn?"d":""}`} onClick={()=>toggle(vid)} style={{width:20,height:20}}>{dn&&<span style={{color:"#000",fontSize:10,fontWeight:700}}>✓</span>}</div>
+                              <div style={{flex:1,minWidth:0}}>
+                                <div style={{color:dn?C.txD:C.txt,fontSize:12,fontWeight:500,textDecoration:dn?"line-through":"none"}}>{vd.name}</div>
+                                <div style={{color:C.txD,fontSize:9}}>{vd.fa} {FA_PG[vd.fa]?<span style={{color:C.blu}}>· FA p.{FA_PG[vd.fa]}</span>:""}</div>
+                              </div>
+                              {vd.dur>0&&<span style={{color:C.txD,fontSize:10,fontFamily:"'JetBrains Mono'"}}>{vd.dur}m</span>}
+                              <span style={{fontSize:8,color:vd.res==="bnb"?C.pri:C.pur,fontWeight:700}}>{vd.res==="bnb"?"B&B":"SK"}</span>
+                              <button onClick={(e)=>{e.stopPropagation();setMovingVid(vid);setCalDay(null);}} style={{background:C.bg,border:`1px solid ${C.bdr}`,borderRadius:4,color:C.txM,fontSize:8,padding:"2px 6px",cursor:"pointer",fontFamily:"'Outfit'"}}>Move</button>
+                              {dn&&<div style={{display:"flex",gap:2,marginLeft:2}}>
+                                {[["easy",C.grn,"E"],["medium","#FFB300","M"],["hard",C.red,"H"]].map(([lv,cl,lb])=>(
+                                  <button key={lv} onClick={(e)=>{e.stopPropagation();rateDiff(vid,lv);}} style={{width:18,height:18,borderRadius:4,border:`1px solid ${diff[vid]===lv?cl:C.bdr}`,background:diff[vid]===lv?cl+"22":"transparent",color:diff[vid]===lv?cl:C.txD,fontSize:8,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",padding:0}}>{lb}</button>
+                                ))}
+                              </div>}
+                            </div>
+                          );
+                        })}
+                        {/* Spaced repetition items for this day */}
+                        {(revs[day.key]||[]).length>0&&<div style={{borderTop:`1px solid rgba(255,138,101,0.2)`,marginTop:4,paddingTop:6}}>
+                          <div style={{color:C.sec,fontSize:9,fontWeight:600,textTransform:"uppercase",letterSpacing:.5,marginBottom:4}}>Spaced repetition</div>
+                          {(revs[day.key]||[]).map((rv,ri)=>{
+                            const rKey=rv.vid+"|"+rv.type;
+                            const rDone=!!revsDone[rKey];
+                            const lbl=REV_LABELS[rv.type]||rv.type;
+                            return (
+                              <div key={ri} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 0"}}>
+                                <div style={{width:3,height:22,borderRadius:2,background:rDone?C.grn:rv.type==="dump"?"#FF8A65":"#AB47BC",flexShrink:0}}/>
+                                <div className={`ck ${rDone?"d":""}`} onClick={()=>toggleRev(rv.vid,rv.type)} style={{width:18,height:18}}>{rDone&&<span style={{color:"#000",fontSize:9,fontWeight:700}}>✓</span>}</div>
+                                <div style={{flex:1,minWidth:0}}>
+                                  <div style={{color:rDone?C.txD:C.txt,fontSize:11,textDecoration:rDone?"line-through":"none"}}>{lbl}</div>
+                                  <div style={{color:C.txD,fontSize:8}}>{rv.name} · {rv.fa}</div>
+                                </div>
+                                <span style={{color:C.txD,fontSize:9,fontFamily:"'JetBrains Mono'"}}>{REV_LABELS[rv.type]?""+(rv.type==="dump"?"8":"10")+"m":""}</span>
+                              </div>
+                            );
+                          })}
+                        </div>}
+                        {/* UWorld tracker for this day's system */}
+                        {(()=>{
+                          const sysFAs=day.vids.map(v=>{const vd=ALL.find(x=>x.id===v);return vd?.fa;}).filter(f=>f&&!["Biochemistry","Immunology","Pathology","Pharmacology","Public Health Sciences","Microbiology"].includes(f));
+                          const sysFa=sysFAs[0]||wk.sysName;
+                          const uwT=UW_Q[sysFa]||0;const uwD=uw[sysFa]||0;
+                          if(!uwT) return null;
+                          const uwPct=Math.round(uwD/uwT*100);
+                          return (
+                            <div style={{borderTop:`1px solid rgba(66,165,245,0.2)`,marginTop:4,paddingTop:8}}>
+                              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
+                                <span style={{color:C.blu,fontSize:10,fontWeight:600}}>❓ UWorld · {sysFa}</span>
+                                <span style={{color:C.txD,fontSize:9,fontFamily:"'JetBrains Mono'"}}>{uwPct}%</span>
+                              </div>
+                              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                                <div style={{flex:1,height:4,borderRadius:2,background:C.bdr,overflow:"hidden"}}><div style={{height:"100%",width:`${uwPct}%`,background:C.blu,borderRadius:2,transition:"width .4s"}}/></div>
+                                <button onClick={()=>{const n={...uw};n[sysFa]=Math.max(0,(n[sysFa]||0)-1);setUw(n);save(done,dLog,exam,true,n,curFA,diff);}} style={{...S.uwBtn,width:24,height:24,fontSize:13}}>−</button>
+                                <span style={{fontSize:11,fontFamily:"'JetBrains Mono'",color:C.txt,minWidth:50,textAlign:"center",fontWeight:600}}>{uwD}/{uwT}</span>
+                                <button onClick={()=>{const n={...uw};n[sysFa]=Math.min(uwT,(n[sysFa]||0)+1);setUw(n);save(done,dLog,exam,true,n,curFA,diff);flash("+1 UW");}} style={{...S.uwBtn,width:24,height:24,fontSize:13,background:C.bluD,borderColor:"rgba(66,165,245,0.3)",color:C.blu}}>+</button>
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </div>}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          });
+        })()}
+      </div>}
+
+      {tab==="videos"&&<div className="an"><p style={S.pageTitle}>Videos</p><p style={S.pageSub}>Browse all B&amp;B and Sketchy videos by system</p>
+        {FA.map(fa=>{ const d=DATA[fa],st=secStats[fa],isO=expFA===fa; return (
+          <div key={fa} style={{...S.cd,padding:0,overflow:"hidden",marginBottom:6}}>
+            <div onClick={()=>setExpFA(isO?null:fa)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 14px",cursor:"pointer",borderBottom:isO?`1px solid ${C.bdr}`:"none"}}>
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                <span style={{fontSize:16}}>{d.icon}</span>
+                <div><div style={{color:C.txt,fontWeight:600,fontSize:13}}>{fa}</div><div style={{color:C.txD,fontSize:10,fontFamily:"'JetBrains Mono'"}}>{st.d}/{st.t} · {st.p}%</div></div>
+              </div>
+              <MR p={st.p} c={d.sec==="I"?C.pri:C.blu}/>
+            </div>
+            {isO&&<div style={{padding:"6px 10px 10px"}}>
+              {["bnb","sketchy"].map(res=>{ if(!d[res]||!Object.keys(d[res]).length) return null; return Object.entries(d[res]).map(([cat,subs])=>(
+                <div key={cat} style={{marginBottom:6}}>
+                  <div style={{color:res==="bnb"?C.pri:C.pur,fontSize:11,fontWeight:600,padding:"5px 2px",textTransform:"uppercase",letterSpacing:.4}}>{cat}</div>
+                  {Object.entries(subs).map(([sub,vids])=>{ const sk=`${fa}|${cat}|${sub}`,so=expSub[sk],sd=vids.filter(([n])=>done[`${res}|${fa}|${cat}|${sub}|${n}`]).length; return (
+                    <div key={sub}>
+                      <div onClick={()=>setExpSub(p=>({...p,[sk]:!p[sk]}))} style={{display:"flex",justifyContent:"space-between",padding:"6px 2px",cursor:"pointer"}}><span style={{color:C.txM,fontSize:12,fontWeight:500}}>{sub}</span><span style={{color:C.txD,fontSize:10,fontFamily:"'JetBrains Mono'"}}>{sd}/{vids.length} {so?"▲":"▼"}</span></div>
+                      {so&&vids.map(v=>{ const nm=v[0],dur=v[1]||0,id=`${res}|${fa}|${cat}|${sub}|${nm}`,dn=!!done[id]; return (
+                        <div key={id} className="vr" onClick={()=>toggle(id)}>
+                          <div className={`ck ${res==="sketchy"?"sk":""} ${dn?"d":""}`}>{dn&&<span style={{color:"#000",fontSize:11,fontWeight:700}}>✓</span>}</div>
+                          <div style={{flex:1,minWidth:0}}><div style={{color:dn?C.txD:C.txt,fontSize:12,textDecoration:dn?"line-through":"none"}}>{nm}</div></div>
+                          {dur>0&&<span style={{color:C.txD,fontSize:10,fontFamily:"'JetBrains Mono'",flexShrink:0}}>{dur}m</span>}
+                          <span style={{fontSize:8,color:res==="bnb"?C.pri:C.pur,fontWeight:700,flexShrink:0}}>{res==="bnb"?"B&B":"SK"}</span>
+                        </div>);
+                      })}
+                    </div>);
+                  })}
+                </div>));
+              })}
+            </div>}
+          </div>);
+        })}
+      </div>}
+
+      {tab==="search"&&<div className="an"><p style={S.pageTitle}>Search</p><p style={S.pageSub}>Find any video instantly</p>
+        <input placeholder="Search any video..." value={search} onChange={e=>setSearch(e.target.value)} style={S.si} autoFocus/>
+        <div style={{display:"flex",gap:4,marginBottom:10}}>
+          {[["all","All"],["bnb","B&B"],["sketchy","Sketchy"]].map(([k,l])=><button key={k} onClick={()=>setResFilter(k)} style={{...S.tBtn,flex:"none",padding:"6px 14px",fontSize:11,...(resFilter===k?{background:k==="sketchy"?C.purD:C.priD,color:k==="sketchy"?C.pur:C.pri}:{})}}>{l}</button>)}
+        </div>
+        {filtered.length>0&&<div style={{...S.cd,padding:"6px 4px"}}>{filtered.map(v=>{ const dn=!!done[v.id]; return (
+          <div key={v.id} className="vr" onClick={()=>toggle(v.id)}>
+            <div className={`ck ${v.res==="sketchy"?"sk":""} ${dn?"d":""}`}>{dn&&<span style={{color:"#000",fontSize:11,fontWeight:700}}>✓</span>}</div>
+            <div style={{flex:1,minWidth:0}}><div style={{color:dn?C.txD:C.txt,fontSize:12,textDecoration:dn?"line-through":"none"}}>{v.name}</div><div style={{color:C.txD,fontSize:9}}>{v.fa} → {v.sub} {FA_PG[v.fa]?<span style={{color:C.blu}}>· FA p.{FA_PG[v.fa]}</span>:""}</div></div>
+            {v.dur>0&&<span style={{color:C.txD,fontSize:10,fontFamily:"'JetBrains Mono'"}}>{v.dur}m</span>}
+            <span style={{fontSize:8,color:v.res==="bnb"?C.pri:C.pur,fontWeight:700}}>{v.res==="bnb"?"B&B":"SK"}</span>
+          </div>);
+        })}</div>}
+        {search&&!filtered.length&&<p style={{color:C.txD,textAlign:"center",marginTop:32,fontSize:13}}>No results for "{search}"</p>}
+      </div>}
+
+      {tab==="nbme"&&<div className="an">
+        <p style={S.pageTitle}>NBME Scores</p>
+        <p style={S.pageSub}>Track your practice exams and predict your Step 1 score</p>
+
+        {/* Target + Average summary row */}
+        {(()=>{
+          const TARGET = 230; // competitive pass score
+          const PASS = 214; // minimum passing
+          const scores = nbme.map(e=>pctToStep1(e.pct)).filter(Boolean);
+          const avg = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : null;
+          const latest = scores.length ? scores[scores.length-1] : null;
+          const trend = scores.length>=2 ? scores[scores.length-1]-scores[scores.length-2] : null;
+          const gapToTarget = avg ? TARGET-avg : null;
+          const gapToPass = avg ? PASS-avg : null;
+
+          return (<>
+          {/* Big stat cards */}
+          <div style={S.grid4}>
+            <div style={{...S.cd,background:"var(--pri-d)",border:"1px solid var(--pri)",textAlign:"center",padding:"22px 16px"}}>
+              <div style={{fontSize:11,fontWeight:700,color:C.pri,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:6}}>Your Target</div>
+              <div style={{fontSize:36,fontWeight:800,color:C.pri,fontFamily:"'JetBrains Mono'",letterSpacing:"-1px"}}>230+</div>
+              <div style={{fontSize:12,color:C.txM,marginTop:4}}>Competitive score</div>
+            </div>
+            <div style={{...S.cd,background:avg?(avg>=TARGET?"var(--grn-d)":avg>=PASS?"var(--pri-d)":"var(--amb-d)"):"var(--bg3)",border:`1px solid ${avg?(avg>=TARGET?"var(--grn)":avg>=PASS?"var(--pri)":"var(--amb)"):"var(--bdr)"}`,textAlign:"center",padding:"22px 16px"}}>
+              <div style={{fontSize:11,fontWeight:700,color:C.txM,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:6}}>Predicted Avg</div>
+              <div style={{fontSize:36,fontWeight:800,color:avg?(avg>=TARGET?C.grn:avg>=PASS?C.pri:C.sec):C.txD,fontFamily:"'JetBrains Mono'",letterSpacing:"-1px"}}>{avg||"—"}</div>
+              <div style={{fontSize:12,color:C.txM,marginTop:4}}>{avg?`${scores.length} exam${scores.length>1?"s":""} averaged`:"No exams yet"}</div>
+            </div>
+            <div style={{...S.cd,textAlign:"center",padding:"22px 16px"}}>
+              <div style={{fontSize:11,fontWeight:700,color:C.txM,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:6}}>Latest Score</div>
+              <div style={{fontSize:36,fontWeight:800,color:latest?(latest>=TARGET?C.grn:latest>=PASS?C.pri:C.sec):C.txD,fontFamily:"'JetBrains Mono'",letterSpacing:"-1px"}}>{latest||"—"}</div>
+              <div style={{fontSize:12,color:C.txM,marginTop:4}}>{trend!==null?<span style={{color:trend>=0?C.grn:C.red,fontWeight:600}}>{trend>=0?"↑":"↓"} {Math.abs(trend)} from last</span>:"—"}</div>
+            </div>
+            <div style={{...S.cd,textAlign:"center",padding:"22px 16px"}}>
+              <div style={{fontSize:11,fontWeight:700,color:C.txM,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:6}}>Gap to Pass</div>
+              <div style={{fontSize:36,fontWeight:800,color:gapToPass!==null?(gapToPass<=0?C.grn:C.sec):C.txD,fontFamily:"'JetBrains Mono'",letterSpacing:"-1px"}}>{gapToPass!==null?(gapToPass<=0?"✓":"+"+gapToPass):"—"}</div>
+              <div style={{fontSize:12,color:C.txM,marginTop:4}}>Passing = 214</div>
+            </div>
+          </div>
+
+          {/* Progress bar toward target */}
+          {avg&&<div style={{...S.cd,marginBottom:12}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+              <span style={{fontSize:15,fontWeight:600,color:C.txt}}>Progress toward 230</span>
+              <span style={{fontSize:13,color:C.txM,fontFamily:"'JetBrains Mono'"}}>{avg} / 230</span>
+            </div>
+            <div style={{height:12,borderRadius:6,background:C.bg,overflow:"hidden",position:"relative"}}>
+              {/* Pass threshold marker */}
+              <div style={{position:"absolute",left:`${(214-160)/(270-160)*100}%`,top:0,width:2,height:"100%",background:"var(--amb)",zIndex:1}}/>
+              {/* Target marker */}
+              <div style={{position:"absolute",left:`${(230-160)/(270-160)*100}%`,top:0,width:2,height:"100%",background:"var(--grn)",zIndex:1}}/>
+              <div style={{height:"100%",width:`${Math.min(100,Math.max(0,(avg-160)/(270-160)*100))}%`,background:"linear-gradient(90deg,var(--pri),var(--grn))",borderRadius:6,transition:"width 0.6s ease"}}/>
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between",marginTop:6,fontSize:11,color:C.txM}}>
+              <span>160</span>
+              <span style={{color:"var(--amb)",fontWeight:600}}>214 Pass</span>
+              <span style={{color:"var(--grn)",fontWeight:600}}>230 Target</span>
+              <span>270</span>
+            </div>
+            <div style={{marginTop:12,padding:"10px 14px",borderRadius:"var(--r-sm)",background:avg>=TARGET?"var(--grn-d)":avg>=PASS?"var(--pri-d)":"var(--amb-d)",border:`1px solid ${avg>=TARGET?"var(--grn)":avg>=PASS?"var(--pri)":"var(--amb)"}`,fontSize:13,color:C.txt,fontWeight:500}}>
+              {avg>=TARGET?"🎉 You're at target level — maintain this and you're ready.":avg>=PASS?`📈 You're passing. Need ${TARGET-avg} more points to hit 230. Keep grinding.`:`⚠️ ${PASS-avg} points below passing. Focus on weak systems and UWorld incorrects.`}
+            </div>
+          </div>}
+
+          {/* Score history chart */}
+          {nbme.length>0&&<div style={{...S.cd,marginBottom:12}}>
+            <div style={{fontSize:15,fontWeight:600,color:C.txt,marginBottom:16}}>Score History</div>
+            <div style={{display:"flex",alignItems:"flex-end",gap:8,height:120,padding:"0 4px"}}>
+              {nbme.map((e,i)=>{
+                const pred=pctToStep1(e.pct)||0;
+                const h=Math.max(10,Math.round((pred-160)/(270-160)*100));
+                const col=pred>=TARGET?"var(--grn)":pred>=PASS?"var(--pri)":"var(--amb)";
+                return <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
+                  <div style={{fontSize:11,fontWeight:700,color:col,fontFamily:"'JetBrains Mono'"}}>{pred}</div>
+                  <div style={{width:"100%",height:`${h}%`,background:col,borderRadius:"6px 6px 0 0",transition:"height 0.4s ease",minHeight:8}}/>
+                  <div style={{fontSize:10,color:C.txM,textAlign:"center",lineHeight:1.2}}>{e.form}</div>
+                  <div style={{fontSize:9,color:C.txD}}>{e.date?.slice(5)}</div>
+                </div>;
+              })}
+            </div>
+            {/* Reference lines label */}
+            <div style={{display:"flex",gap:16,marginTop:10,fontSize:11}}>
+              <span style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:12,height:3,background:"var(--amb)",borderRadius:2}}/><span style={{color:C.txM}}>214 Pass</span></span>
+              <span style={{display:"flex",alignItems:"center",gap:4}}><div style={{width:12,height:3,background:"var(--grn)",borderRadius:2}}/><span style={{color:C.txM}}>230 Target</span></span>
+            </div>
+          </div>}
+          </>);
+        })()}
+
+        {/* Log new score */}
+        <div style={{...S.cd}}>
+          <div style={{fontSize:16,fontWeight:700,color:C.txt,marginBottom:16}}>Log a New Score</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr auto",gap:10,alignItems:"end"}}>
+            <div>
+              <label style={S.lbl}>Exam Form</label>
+              <select value={nbmeForm} onChange={e=>setNbmeForm(e.target.value)} style={{...S.di,height:42}}>
+                <option value="">Select form…</option>
+                {Object.keys(NBME_CONV).map(k=><option key={k} value={k}>{k}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={S.lbl}>Date Taken</label>
+              <input type="date" value={nbmeDate} onChange={e=>setNbmeDate(e.target.value)} style={{...S.di,height:42}}/>
+            </div>
+            <div>
+              <label style={S.lbl}>% Correct</label>
+              <input type="number" min="0" max="100" placeholder="e.g. 72" value={nbmePct} onChange={e=>setNbmePct(e.target.value)} style={{...S.di,height:42}}/>
+            </div>
+            <div>
+              <label style={S.lbl}>Predicted</label>
+              <div style={{height:42,display:"flex",alignItems:"center",padding:"0 14px",borderRadius:"var(--r-sm)",border:`1px solid ${C.bdr}`,background:C.bg,fontSize:18,fontWeight:800,fontFamily:"'JetBrains Mono'",color:C.pri}}>{nbmePct?pctToStep1(nbmePct)||"—":"—"}</div>
+            </div>
+            <button onClick={()=>{
+              if(!nbmeForm||!nbmePct) return flash("Select a form and enter % correct");
+              const entry={form:nbmeForm,date:nbmeDate,pct:parseFloat(nbmePct),predicted:pctToStep1(nbmePct)};
+              const n=[...nbme,entry].sort((a,b)=>a.date.localeCompare(b.date));
+              saveNbme(n); setNbmeForm(""); setNbmePct(""); setNbmeDate(today()); flash(`✓ ${nbmeForm} logged — predicted ${entry.predicted}`);
+            }} style={{...S.btn,width:"auto",padding:"0 22px",height:42,whiteSpace:"nowrap"}}>+ Log Score</button>
+          </div>
+          <p style={{fontSize:12,color:C.txM,marginTop:10}}>Enter your % correct from the NBME score report. The predicted 3-digit score uses published USMLE correlation data.</p>
+        </div>
+
+        {/* Score log table */}
+        {nbme.length>0&&<div style={{...S.cd}}>
+          <div style={{fontSize:15,fontWeight:600,color:C.txt,marginBottom:14}}>All Exams</div>
+          <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
+            <thead>
+              <tr style={{borderBottom:`2px solid ${C.bdr}`}}>
+                {["Form","Date","% Correct","Predicted Score","vs Target",""].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",color:C.txM,fontWeight:600,fontSize:11,textTransform:"uppercase",letterSpacing:"0.05em"}}>{h}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {[...nbme].reverse().map((e,i)=>{
+                const pred=pctToStep1(e.pct);
+                const gap=pred?pred-230:null;
+                return <tr key={i} style={{borderBottom:`1px solid ${C.bdr}`}}>
+                  <td style={{padding:"10px 10px",fontWeight:600,color:C.txt}}>{e.form}</td>
+                  <td style={{padding:"10px 10px",color:C.txM,fontFamily:"'JetBrains Mono'",fontSize:12}}>{e.date}</td>
+                  <td style={{padding:"10px 10px",fontFamily:"'JetBrains Mono'",color:C.txt,fontWeight:600}}>{e.pct}%</td>
+                  <td style={{padding:"10px 10px",fontFamily:"'JetBrains Mono'",fontWeight:800,fontSize:16,color:pred>=230?"var(--grn)":pred>=214?"var(--pri)":"var(--amb)"}}>{pred||"—"}</td>
+                  <td style={{padding:"10px 10px",fontFamily:"'JetBrains Mono'",fontSize:12,fontWeight:600,color:gap>=0?"var(--grn)":"var(--red)"}}>{gap!==null?(gap>=0?`+${gap} above target`:`${gap} below target`):"—"}</td>
+                  <td style={{padding:"10px 6px"}}><button onClick={()=>{const n=nbme.filter((_,j)=>nbme.length-1-j!==i);saveNbme(n);}} style={{background:"var(--amb-d)",border:"1px solid var(--amb)",borderRadius:6,color:"var(--amb)",fontSize:11,padding:"3px 8px",cursor:"pointer",fontWeight:600}}>Remove</button></td>
+                </tr>;
+              })}
+            </tbody>
+          </table>
+        </div>}
+      </div>}
+
+      {tab==="settings"&&<div className="an"><p style={S.pageTitle}>Settings</p><p style={S.pageSub}>Manage your tracker preferences</p>
+        <div style={{...S.cd,padding:14}}><div style={{color:C.txt,fontWeight:600,fontSize:13,marginBottom:10}}>Exam Date</div><input type="date" value={exam} onChange={e=>{setExam(e.target.value);save(done,dLog,e.target.value,true,uw,curFA,diff)}} style={S.di}/></div>
+        <div style={{...S.cd,padding:14}}>
+          <div style={{color:C.txt,fontWeight:600,fontSize:13,marginBottom:6}}>Stats</div>
+          <div style={{color:C.txD,fontSize:12,lineHeight:2,fontFamily:"'JetBrains Mono'"}}>
+            Total items: {TOTAL} videos + {UW_TOTAL} UW Qs<br/>B&B: {ALL.filter(v=>v.res==="bnb"&&done[v.id]).length}/{BNB_COUNT}<br/>Sketchy: {ALL.filter(v=>v.res==="sketchy"&&done[v.id]).length}/{SK_COUNT}<br/>UWorld: {Object.values(uw).reduce((a,b)=>a+b,0)}/{UW_TOTAL}<br/>Completed videos: {dc}<br/>Remaining: {rem}<br/>Daily target: {target} vids/day<br/>Streak: {streak} days<br/>B&B watch time: {Math.round(TOTAL_MIN/60)}h<br/>Total study hours: {Math.round(Object.values(studyHrs).reduce((a,b)=>a+b,0)/60)}h<br/>Today: {todayHrs}h {todayRemMin}m / 8h goal
+          </div>
+        </div>
+        <div style={{...S.cd,padding:14}}>
+          <div style={{color:C.txt,fontWeight:600,fontSize:13,marginBottom:6}}>Days Off / Reduced</div>
+          <div style={{color:C.txD,fontSize:11,lineHeight:1.8,fontFamily:"'JetBrains Mono'"}}>
+            Apr 17 — half day (off 5pm+)<br/>Apr 18 — full day off<br/>Apr 20 — off 12:30-5pm<br/>Apr 24 — off 2:30-6pm<br/>Apr 28 — full day off<br/>May 2 — full day off<br/>May 16 — off 9-11am (dog vaccine)
+          </div>
+        </div>
+        <div style={{...S.cd,padding:14}}>
+          <button onClick={exportProgress} style={{...S.btn,background:C.priD,color:C.pri,border:`1px solid rgba(0,191,165,0.3)`,marginBottom:8}}>Export Progress to Clipboard</button>
+          <p style={{color:C.txD,fontSize:10,textAlign:"center"}}>Copy your completed videos list — paste to Claude to transfer progress</p>
+        </div>
+        <div style={{...S.cd,padding:14,borderColor:"rgba(239,83,80,0.2)"}}>
+          <button onClick={()=>{if(confirm("Reset all progress?")){setDone({});setDLog({});setUw({});setCurFA(null);setStudyHrs({});setSessionStart(null);setDiff({});save({},{},exam,true,{},null,{});saveHrs({});try{localStorage.removeItem("s1tSession")}catch(e){}flash("Reset")}}} style={{...S.btn,background:"rgba(239,83,80,0.12)",color:C.red,border:`1px solid rgba(239,83,80,0.2)`}}>Reset All Progress</button>
+        </div>
+      </div>}
+      <div style={{height:24}}/>
+      </div>{/* end main */}
+    </div>
+  );
+}
+
+const MOTTOS=["Every session moves you closer to your goal.","Consistency beats intensity — show up today.","Small steps today create big results tomorrow.","Stay the course. Future you will thank you.","You're building momentum — keep going!","One more video. One step closer.","The score you want is built one day at a time."];
+const getMotto=(p)=>{if(p>=75)return"You're in the final stretch — finish strong! 💪";if(p>=50)return"Halfway there. You've proven you can do this.";if(p>=25)return"Great start — the foundation is being built.";return MOTTOS[new Date().getDay()%MOTTOS.length];};
+
+function MR({p,c}){const r=20,ci=2*Math.PI*r;return <svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r={r} fill="none" stroke="var(--bdr)" strokeWidth="3"/><circle cx="26" cy="26" r={r} fill="none" stroke={c} strokeWidth="3" strokeLinecap="round" strokeDasharray={ci} strokeDashoffset={ci*(1-p/100)} transform="rotate(-90 26 26)" style={{transition:"stroke-dashoffset 0.6s ease"}}/><text x="26" y="30" textAnchor="middle" fill="var(--txt)" fontSize="11" fontWeight="700" fontFamily="'Inter'">{p}%</text></svg>;}
+
+function Stat({l,v,c,s,sub}){return <div style={{background:C.card,borderRadius:"var(--r)",border:`1px solid ${C.bdr}`,padding:"20px 22px",boxShadow:"var(--shadow)"}}><div style={{color:c||C.pri,fontSize:s?18:30,fontWeight:800,fontFamily:"'JetBrains Mono'",letterSpacing:"-0.5px",lineHeight:1}}>{v}</div><div style={{color:C.txM,fontSize:13,marginTop:7,fontWeight:500}}>{l}</div>{sub&&<div style={{color:C.txD,fontSize:11,marginTop:2}}>{sub}</div>}</div>;}
+
+const S = {
+  ctr:{minHeight:"100vh",background:C.bg,fontFamily:"'Inter',sans-serif",display:"flex",flexDirection:"row"},
+  sidebar:{width:234,minHeight:"100vh",background:C.card,borderRight:`1px solid ${C.bdr}`,display:"flex",flexDirection:"column",padding:"28px 0",flexShrink:0,position:"sticky",top:0,height:"100vh",overflowY:"auto",boxShadow:"var(--shadow)"},
+  main:{flex:1,minWidth:0,padding:"36px 44px",overflowY:"auto"},
+  h1:{fontFamily:"'Inter'",fontWeight:800,color:C.txt,margin:0,letterSpacing:"-0.7px"},
+  cd:{background:C.card,borderRadius:"var(--r)",border:`1px solid ${C.bdr}`,padding:24,marginBottom:12,boxShadow:"var(--shadow)",transition:"box-shadow 0.22s ease"},
+  lbl:{display:"block",color:C.txM,fontSize:12,fontWeight:600,marginBottom:7,textTransform:"uppercase",letterSpacing:"0.07em"},
+  di:{width:"100%",padding:"11px 15px",borderRadius:"var(--r-sm)",border:`1px solid ${C.bdr}`,background:C.bg,color:C.txt,fontSize:15,fontFamily:"'Inter'",boxSizing:"border-box",outline:"none"},
+  btn:{width:"100%",padding:"14px 0",borderRadius:"var(--r-sm)",border:"none",background:C.pri,color:"#fff",fontSize:15,fontWeight:600,cursor:"pointer",fontFamily:"'Inter'",transition:"var(--trans)",boxShadow:"var(--shadow)"},
+  hdr:{padding:"0 24px 22px",borderBottom:`1px solid ${C.bdr}`,marginBottom:22},
+  strk:{display:"flex",alignItems:"center",gap:6,background:"var(--amb-d)",border:"1px solid var(--amb)",borderRadius:"var(--r-sm)",padding:"8px 16px"},
+  tBar:{display:"flex",flexDirection:"column",gap:2,padding:"0 14px"},
+  tBtn:{width:"100%",padding:"11px 16px",border:"none",background:"transparent",color:C.txM,fontSize:14,fontWeight:500,fontFamily:"'Inter'",borderRadius:"var(--r-sm)",cursor:"pointer",transition:"var(--trans)",textAlign:"left",display:"flex",alignItems:"center",gap:12},
+  toast:{position:"fixed",top:22,left:"50%",transform:"translateX(-50%)",background:C.pri,color:"#fff",padding:"12px 28px",borderRadius:"var(--r-sm)",fontWeight:600,fontSize:14,zIndex:999,fontFamily:"'Inter'",boxShadow:"var(--shadow-lg)"},
+  si:{width:"100%",padding:"12px 16px",borderRadius:"var(--r-sm)",border:`1px solid ${C.bdr}`,background:C.card,color:C.txt,fontSize:14,fontFamily:"'Inter'",boxSizing:"border-box",marginBottom:10,outline:"none"},
+  uwBtn:{width:32,height:32,borderRadius:"var(--r-sm)",border:`1px solid ${C.bdr}`,background:C.bg,color:C.txM,fontSize:17,fontWeight:500,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",transition:"var(--trans)"},
+  grid2:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:14},
+  grid3:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:14,marginBottom:14},
+  grid4:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14,marginBottom:14},
+  pageTitle:{fontSize:30,fontWeight:800,color:C.txt,marginBottom:6,letterSpacing:"-1px"},
+  pageSub:{fontSize:15,color:C.txM,marginBottom:28,fontWeight:400},
+};
+
+window.__mountApp = () => ReactDOM.render(React.createElement(App), document.getElementById('root'));
+if (window.__pendingMount) window.__mountApp();
+</script>
+</body>
+</html>
